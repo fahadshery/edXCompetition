@@ -48,7 +48,7 @@ happinessTrain = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Da
 ```
 
 
-Always check the data structure first:
+Always check the data structure first, So we can take a look at the structure of our new data frame by using the str and summary functions:
 
 
 ```r
@@ -157,6 +157,14 @@ str(happinessTrain)
 ##  $ Q100562        : Factor w/ 3 levels "","No","Yes": 2 3 3 2 3 2 3 3 3 1 ...
 ##  $ Q99982         : Factor w/ 3 levels "","Check!","Nope": 3 1 2 3 3 2 3 2 3 1 ...
 ##   [list output truncated]
+```
+
+```r
+str(happinessTrain$Q124742)
+```
+
+```
+##  Factor w/ 3 levels "","No","Yes": 2 1 2 1 2 3 1 2 2 1 ...
 ```
 
 ```r
@@ -334,5 +342,114 @@ summary(happinessTrain)
 ## 
 ```
 
+```r
+summary(happinessTrain$Q124742)
+```
 
-So we have 4619 observations and 110 columns/variables,
+```
+##        No  Yes 
+## 2563 1300  756
+```
+
+```r
+View(happinessTrain)
+summary(happinessTrain$Q114386)
+```
+
+```
+##            Mysterious        TMI 
+##       1309       1891       1419
+```
+
+```r
+summary(happinessTrain$Q115899)
+```
+
+```
+##               Circumstances            Me 
+##          1342          1448          1829
+```
+
+
+So we have 4619 observations and 110 columns/variables.
+
+Lets check how many are happy and how many are not in the training set:
+
+
+```r
+
+table(happinessTrain$Happy)
+```
+
+```
+## 
+##    0    1 
+## 2015 2604
+```
+
+```r
+prop.table(table(happinessTrain$Happy))
+```
+
+```
+## 
+##      0      1 
+## 0.4362 0.5638
+```
+
+
+56.4% people are happy and 43.6% are not in the training set.
+
+Let's check the male/female proportions now:
+
+
+```r
+# proportion of men, women and not answered in the train set
+prop.table(table(happinessTrain$Gender))
+```
+
+```
+## 
+##        Female   Male 
+## 0.1163 0.3572 0.5265
+```
+
+
+Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.
+
+Let's check what proportion of these people are happy by:
+
+
+```r
+prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
+```
+
+```
+##         
+##                0       1
+##          0.04655 0.06971
+##   Female 0.16346 0.19376
+##   Male   0.22624 0.30028
+```
+
+
+Well that's not very clean, the proportion table command by default takes each entry in the table and divides by the total number of passengers. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using '2' instead would give you column proportions):
+
+
+```r
+prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
+```
+
+```
+##         
+##               0      1
+##          0.4004 0.5996
+##   Female 0.4576 0.5424
+##   Male   0.4297 0.5703
+```
+
+This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population in the train dataset.
+
+Let's look into the age variable now
+
+

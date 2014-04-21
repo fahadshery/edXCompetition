@@ -48,11 +48,84 @@ library(knitr)
 happinessTrain = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv")
 ```
 
-Always check the data structure first:
+Always check the data structure first, So we can take a look at the structure of our new data frame by using the str and summary functions:
 
 ```{r}
 str(happinessTrain)
+str(happinessTrain$Q124742)
 summary(happinessTrain)
+summary(happinessTrain$Q124742)
+View(happinessTrain)
+summary(happinessTrain$Q114386)
+summary(happinessTrain$Q115899)
 ```
 
-So we have 4619 observations and 110 columns/variables,
+So we have 4619 observations and 110 columns/variables.
+
+Lets check how many are happy and how many are not in the training set:
+
+```{r}
+
+table(happinessTrain$Happy)
+prop.table(table(happinessTrain$Happy))
+
+```
+
+56.4% people are happy and 43.6% are not in the training set.
+
+Let's check the male/female proportions now:
+
+```{r}
+# proportion of men, women and not answered in the train set
+prop.table(table(happinessTrain$Gender))
+```
+
+Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.
+
+Let's check what proportion of these people are happy by:
+
+```{r}
+prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
+
+```
+
+Well that's not very clean, the proportion table command by default takes each entry in the table and divides by the total number of passengers. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using '2' instead would give you column proportions):
+
+```{r}
+prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
+
+```
+This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population in the train dataset.
+
+Let's look into the income variable now (just following intution tbh!):
+
+```{r}
+prop.table(table(happinessTrain$Gender, happinessTrain$Income),1)
+
+```
+This doesn't tell much...
+
+## Baseline Predictions
+we can compare our predictions to the baseline method of predicting the average outcome for all data points. 
+
+In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:
+
+```{r}
+
+table(happinessTrain$Happy)
+
+```
+
+
+Since happiness is more common than not happy, in this case, we would predict that everyone is happy.
+
+```{r}
+2604/nrow(happinessTrain)
+
+```
+
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our logistic regression model.
+
+
+
+
