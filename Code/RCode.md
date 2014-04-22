@@ -450,6 +450,61 @@ prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
 
 This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population in the train dataset.
 
-Let's look into the age variable now
+Let's look into the income variable now (just following intution tbh!):
+
+
+```r
+prop.table(table(happinessTrain$Gender, happinessTrain$Income), 1)
+```
+
+```
+##         
+##                   $100,001 - $150,000 $25,001 - $50,000 $50,000 - $74,999
+##          0.932961            0.011173          0.009311          0.018622
+##   Female 0.212727            0.127879          0.136970          0.160606
+##   Male   0.149260            0.145559          0.129112          0.150905
+##         
+##          $75,000 - $100,000 over $150,000 under $25,000
+##                    0.007449      0.013035      0.007449
+##   Female           0.132121      0.104848      0.124848
+##   Male             0.141859      0.146382      0.136924
+```
+
+This doesn't tell much...
+
+## Baseline Predictions
+we can compare our predictions to the baseline method of predicting the average outcome for all data points. 
+
+In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:
+
+
+```r
+
+table(happinessTrain$Happy)
+```
+
+```
+## 
+##    0    1 
+## 2015 2604
+```
+
+
+
+Since happiness is more common than not happy, in this case, we would predict that everyone is happy.
+
+
+```r
+2604/nrow(happinessTrain)
+```
+
+```
+## [1] 0.5638
+```
+
+
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our logistic regression model.
+
+
 
 

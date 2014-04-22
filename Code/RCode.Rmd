@@ -46,6 +46,8 @@ library(knitr)
 
 ```{r}
 happinessTrain = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv")
+happinessTest = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/test.csv")
+
 ```
 
 Always check the data structure first, So we can take a look at the structure of our new data frame by using the str and summary functions:
@@ -82,7 +84,7 @@ prop.table(table(happinessTrain$Gender))
 
 Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.
 
-Let's check what proportion of these people are happy by:
+Let's check what proportion of these people are happy by the following command:
 
 ```{r}
 prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
@@ -95,18 +97,25 @@ Well that's not very clean, the proportion table command by default takes each e
 prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
 
 ```
-This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population in the train dataset.
-
-Let's look into the income variable now (just following intution tbh!):
+OR you can use tapply function which can show what proportion of Gender population is happy by:
 
 ```{r}
-prop.table(table(happinessTrain$Gender, happinessTrain$Income),1)
+tapply(happinessTrain$Happy, happinessTrain$Gender, mean)
+```
+
+This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn't supplied Gender information in the train dataset are happy and 40% are not.
+
+Let's look into the income variable now (just following intuition tbh!):
+
+```{r}
+prop.table(table(happinessTrain$Happy, happinessTrain$Income),1)
 
 ```
-This doesn't tell much...
+Interestingly, 26% of the people earning between $100,001 - $150,000 are happy and equally amount of people are not happy...Almost similar results are found in other Income ranges...So this doesn't tell much really if the income is related with the happiness...
+
 
 ## Baseline Predictions
-we can compare our predictions to the baseline method of predicting the average outcome for all data points. 
+we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. 
 
 In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:
 
@@ -116,7 +125,6 @@ table(happinessTrain$Happy)
 
 ```
 
-
 Since happiness is more common than not happy, in this case, we would predict that everyone is happy.
 
 ```{r}
@@ -124,8 +132,56 @@ Since happiness is more common than not happy, in this case, we would predict th
 
 ```
 
-If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our logistic regression model.
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our first linear regression model.
 
+## Linear Regression
 
+Linear regression discards observations with missing data, so we will remove all such observations from the training and testing sets. Later, we will learn about imputation, which deals with missing data by filling in missing values with plausible information.
 
+The following commands can be used to remove observations with any missing value from happinessTrain and happinessTest:
+
+```{r}
+hap.Train.Without.Missing.Values = na.omit(happinessTrain)
+hap.Test.Without.Missing.Values = na.omit(happinessTest)
+```
+
+check the structure now:
+
+```{r}
+str(hap.Train.Without.Missing.Values)
+summary(hap.Train.Without.Missing.Values)
+```
+Let's build our first Linear Regression model using all variables except the UserID and YOB:
+
+```{r}
+
+LinearRegModel = lm(Happy ~ . -UserID -YOB -votes,data=hap.Train.Without.Missing.Values)
+summary(LinearRegModel)
+
+```
+
+The training-set RMSE can be computed by first computing the SSE:
+```{r}
+SSE = sum(LinearRegModel$residuals^2)
+```
+and then dividing by the number of observations and taking the square root:
+```{r}
+RMSE = sqrt(SSE / nrow(hap.Train.Without.Missing.Values))
+```
+A alternative way of getting this answer would be with the following command:
+```{r}
+sqrt(mean(LinearRegModel$residuals^2)) 
+```
+## Automatically Building the Model
+
+We have many variables in this problem, and many are insignificant...R provides a function, **step**, that will automate the procedure of trying different combinations of variables to find a good compromise of model simplicity and R2. This trade-off is formalised by the Akaike information criterion (AIC) - it can be informally thought of as the quality of the model with a penalty for the number of variables in the model.
+
+The step function has one argument - the name of the initial model. It returns a simplified model. Use the step function in R to derive a new model, with the full model as the initial model.
+
+```{r}
+LinearRegStepModel = step(LinearRegModel)
+summary(LinearRegStepModel)
+```
+
+It is interesting to note that the step function does not address the collinearity of the variables, except that adding highly correlated variables will not improve the R2 significantly. The consequence of this is that the step function will not necessarily produce a very interpretable model - just a model that has balanced quality and simplicity for a particular weighting of quality and simplicity (AIC).
 
