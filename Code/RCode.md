@@ -1,5 +1,5 @@
 # R Code for edX Competition on *"Analytics Edge"* DataScience Course
-==================================================================
+=====================================================================
 
 #### Author: Fahad Usman
 #### Date: 21 April 2014
@@ -23,6 +23,12 @@ Here is a description of the files you have been provided for this competition:
 - **sampleSubmission.csv** - a sample submission file in the correct format.
 - **Questions.pdf** - the question test corresponding to each of the question codes, as well as the possible answers.
 
+**Note:**  You might be wondering why the dependent variable is not there in the test set because that is what a test set is meant to be in the true sense. Your model might do well on the training data but the challenge is to make it flexible enough so that it can predict well enough on any unseen data.
+
+*For example*, if you are predicting an election winner for the current election based on opinion polls you always do that before the actual outcome comes in i.e. you do not have a dependent variable in your test set(current election) but have the dependent variable in your train set(previous elections).
+
+When you start working with predictions for the first time, you might be working with dependenable variables in both training and testing sets...you might be wondering why we should be given the dependent variable in test set then. That is probably done to make us understand the importance of the fact that what works well on a train set might not work so well on a test set.
+
 ## Data fields
 
 - **UserID** - an anonymous id unique to a given user
@@ -33,18 +39,33 @@ Here is a description of the files you have been provided for this competition:
 - **EducationLevel** - the education level of the user. Either not provided, or one of "Current K-12", "High School Diploma", "Current Undergraduate", "Associate's Degree", "Bachelor's Degree", "Master's Degree", or "Doctoral Degree".
 - **Party** - the political party of the user. Either not provided, or one of "Democrat", "Republican", "Independent", "Libertarian", or "Other".
 - **Happy** - a binary variable, with value 1 if the user said they were happy, and with value 0 if the user said that were neutral or not happy. This is the variable you are trying to predict.
-- Q124742, Q124122, . . . , Q96024 - 101 different questions that the users were asked on Show of Hands. If the user didn't answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.
+- **Q124742, Q124122, . . . , Q96024** - 101 different questions that the users were asked on Show of Hands. If the user didn't answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.
 - **votes** - the total number of questions that the user responded to, out of the 101 questions included in the data set (this count does not include the happiness question).
 
+**Note** - Dependent variable is ***Happy*** and is a binary variable. This is also classed as *categorical variable* which only takes two possible values either a person is happy (1) or not (0)...
 
-Let's begin by reading in the train file:
+## Linear Regression Vs Logistic Regression
+
+
+In the **Linear regression** model the dependent variable y is considered continuous, whereas in **Logistic regression** it is categorical, i.e., discrete. In application, the linear regression is used in regression settings while the logistic regression is used for binary classification or multi-class classification (where it is called multinomial logistic regression). 
+
+In other words:
+
+**Linear regression** is regression when the X variable (the predictor or the independent variable) and the Y variable (the response or the dependent variable) are *both* continuous and linearly related, so the response will **increase or decrease** at a *constant ratio* to the *predictor*. you can also have more then one predictor, which give you regression in multiple dimensions, but in the end it comes down to a set increase/decrease in the response for every one unit increase in the predictor(s).
+
+**Logistic regression** is quite different, the predictor/independent variable is continuous, but the response/dependent variable categorical or dichotomous (only 2 options). The logistic regression provides you with the probability of an event occurring. For every one unit increase in the predictor/independent variable, the probability of an even occurring increases/decreases. However what is actually observed is whether or not the event occurs, the logistics regression can only be tested by seeing whether it's predictions come true. 
+
+We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with.
+
+Let's see if we can build a logistic regression model in R to better predict happiness...To begin, read in the train file provided:
 
 
 
 
 
 ```r
-happinessTrain = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv")
+Train = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv")
+Test = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv")
 ```
 
 
@@ -52,7 +73,7 @@ Always check the data structure first, So we can take a look at the structure of
 
 
 ```r
-str(happinessTrain)
+str(Train)
 ```
 
 ```
@@ -160,7 +181,7 @@ str(happinessTrain)
 ```
 
 ```r
-str(happinessTrain$Q124742)
+str(Train$Q124742)
 ```
 
 ```
@@ -168,7 +189,7 @@ str(happinessTrain$Q124742)
 ```
 
 ```r
-summary(happinessTrain)
+summary(Train)
 ```
 
 ```
@@ -343,7 +364,7 @@ summary(happinessTrain)
 ```
 
 ```r
-summary(happinessTrain$Q124742)
+summary(Train$Q124742)
 ```
 
 ```
@@ -352,8 +373,7 @@ summary(happinessTrain$Q124742)
 ```
 
 ```r
-View(happinessTrain)
-summary(happinessTrain$Q114386)
+summary(Train$Q114386)
 ```
 
 ```
@@ -362,7 +382,7 @@ summary(happinessTrain$Q114386)
 ```
 
 ```r
-summary(happinessTrain$Q115899)
+summary(Train$Q115899)
 ```
 
 ```
@@ -373,12 +393,12 @@ summary(happinessTrain$Q115899)
 
 So we have 4619 observations and 110 columns/variables.
 
-Lets check how many are happy and how many are not in the training set:
+Lets check how many poeple in the given population are happy and how many are not in the training set:
 
 
 ```r
 
-table(happinessTrain$Happy)
+table(Train$Happy)
 ```
 
 ```
@@ -388,7 +408,7 @@ table(happinessTrain$Happy)
 ```
 
 ```r
-prop.table(table(happinessTrain$Happy))
+prop.table(table(Train$Happy))
 ```
 
 ```
@@ -404,8 +424,18 @@ Let's check the male/female proportions now:
 
 
 ```r
+table(Train$Gender)
+```
+
+```
+## 
+##        Female   Male 
+##    537   1650   2432
+```
+
+```r
 # proportion of men, women and not answered in the train set
-prop.table(table(happinessTrain$Gender))
+prop.table(table(Train$Gender))
 ```
 
 ```
@@ -417,7 +447,7 @@ prop.table(table(happinessTrain$Gender))
 
 Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.
 
-Let's check what proportion of these people are happy by:
+Let's check what proportion of these people are happy by the following command:
 
 
 ```r
@@ -425,11 +455,7 @@ prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
 ```
 
 ```
-##         
-##                0       1
-##          0.04655 0.06971
-##   Female 0.16346 0.19376
-##   Male   0.22624 0.30028
+## Error: object 'happinessTrain' not found
 ```
 
 
@@ -441,39 +467,39 @@ prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
 ```
 
 ```
-##         
-##               0      1
-##          0.4004 0.5996
-##   Female 0.4576 0.5424
-##   Male   0.4297 0.5703
+## Error: object 'happinessTrain' not found
 ```
 
-This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population in the train dataset.
-
-Let's look into the income variable now (just following intution tbh!):
+OR you can use tapply function which can show what proportion of Gender population is happy by:
 
 
 ```r
-prop.table(table(happinessTrain$Gender, happinessTrain$Income), 1)
+tapply(happinessTrain$Happy, happinessTrain$Gender, mean)
 ```
 
 ```
-##         
-##                   $100,001 - $150,000 $25,001 - $50,000 $50,000 - $74,999
-##          0.932961            0.011173          0.009311          0.018622
-##   Female 0.212727            0.127879          0.136970          0.160606
-##   Male   0.149260            0.145559          0.129112          0.150905
-##         
-##          $75,000 - $100,000 over $150,000 under $25,000
-##                    0.007449      0.013035      0.007449
-##   Female           0.132121      0.104848      0.124848
-##   Male             0.141859      0.146382      0.136924
+## Error: object 'happinessTrain' not found
 ```
 
-This doesn't tell much...
+
+This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn't supplied Gender information in the train dataset are happy and 40% are not.
+
+Let's look into the income variable now (just following intuition tbh!):
+
+
+```r
+prop.table(table(happinessTrain$Happy, happinessTrain$Income), 1)
+```
+
+```
+## Error: object 'happinessTrain' not found
+```
+
+Interestingly, 26% of the people earning between $100,001 - $150,000 are happy and equally amount of people are not happy...Almost similar results are found in other Income ranges...So this doesn't tell much really if the income is related with the happiness...
+
 
 ## Baseline Predictions
-we can compare our predictions to the baseline method of predicting the average outcome for all data points. 
+we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. 
 
 In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:
 
@@ -484,11 +510,8 @@ table(happinessTrain$Happy)
 ```
 
 ```
-## 
-##    0    1 
-## 2015 2604
+## Error: object 'happinessTrain' not found
 ```
-
 
 
 Since happiness is more common than not happy, in this case, we would predict that everyone is happy.
@@ -499,12 +522,135 @@ Since happiness is more common than not happy, in this case, we would predict th
 ```
 
 ```
-## [1] 0.5638
+## Error: object 'happinessTrain' not found
 ```
 
 
-If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our logistic regression model.
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our first linear regression model.
+
+## Linear Regression
+
+Linear regression discards observations with missing data, so we will remove all such observations from the training and testing sets. Later, we will learn about imputation, which deals with missing data by filling in missing values with plausible information.
+
+The following commands can be used to remove observations with any missing value from happinessTrain and happinessTest:
 
 
+```r
+hap.Train.Without.Missing.Values = na.omit(happinessTrain)
+```
 
+```
+## Error: object 'happinessTrain' not found
+```
+
+```r
+hap.Test.Without.Missing.Values = na.omit(happinessTest)
+```
+
+```
+## Error: object 'happinessTest' not found
+```
+
+
+check the structure now:
+
+
+```r
+str(hap.Train.Without.Missing.Values)
+```
+
+```
+## Error: object 'hap.Train.Without.Missing.Values' not found
+```
+
+```r
+summary(hap.Train.Without.Missing.Values)
+```
+
+```
+## Error: object 'hap.Train.Without.Missing.Values' not found
+```
+
+Let's build our first Linear Regression model using all variables except the UserID, YOB and votes:
+
+
+```r
+
+LinearRegModel = lm(Happy ~ . - UserID - YOB - votes, data = hap.Train.Without.Missing.Values)
+```
+
+```
+## Error: object 'hap.Train.Without.Missing.Values' not found
+```
+
+```r
+summary(LinearRegModel)
+```
+
+```
+## Error: object 'LinearRegModel' not found
+```
+
+
+The training-set RMSE can be computed by first computing the SSE:
+
+```r
+SSE = sum(LinearRegModel$residuals^2)
+```
+
+```
+## Error: object 'LinearRegModel' not found
+```
+
+and then dividing by the number of observations and taking the square root:
+
+```r
+RMSE = sqrt(SSE/nrow(hap.Train.Without.Missing.Values))
+```
+
+```
+## Error: object 'SSE' not found
+```
+
+A alternative way of getting this answer would be with the following command:
+
+```r
+sqrt(mean(LinearRegModel$residuals^2))
+```
+
+```
+## Error: object 'LinearRegModel' not found
+```
+
+
+We can now try removing insignificant variables one by one to see if we can improve our model.  When we remove insignificant variables, the "Multiple R-squared" will always be worse, but only slightly worse. This is due to the nature of a linear regression model. It is always possible for the regression model to make a coefficient zero, which would be the same as removing the variable from the model. The fact that the coefficient is not zero in the intial model means it must be helping the R-squared value, even if it is only a very small improvement. So when we force the variable to be removed, it will decrease the R-squared a little bit. However, this small decrease is worth it to have a simpler model.
+
+On the contrary, when we remove insignificant variables, the "Adjusted R-squred" will frequently be better. This value accounts for the complexity of the model, and thus tends to increase as insignificant variables are removed, and decrease as insignificant variables are added.
+
+
+## Automatically Building the Model
+
+We have many variables in this problem, and many are insignificant...R provides a function, **step**, that will automate the procedure of trying different combinations of variables to find a good compromise of model simplicity and R2. This trade-off is formalised by the Akaike information criterion (AIC) - it can be informally thought of as the quality of the model with a penalty for the number of variables in the model.
+
+The step function has one argument - the name of the initial model. It returns a simplified model. Use the step function in R to derive a new model, with the full model as the initial model.
+
+
+```r
+LinearRegStepModel = step(LinearRegModel)
+```
+
+```
+## Error: object 'LinearRegModel' not found
+```
+
+```r
+summary(LinearRegStepModel)
+```
+
+```
+## Error: object 'LinearRegStepModel' not found
+```
+
+
+It is interesting to note that the step function does not address the collinearity of the variables, except that adding highly correlated variables will not improve the R2 significantly. The consequence of this is that the step function will not necessarily produce a very interpretable model - just a model that has balanced quality and simplicity for a particular weighting of quality and simplicity (AIC).
 
