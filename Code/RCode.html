@@ -185,7 +185,7 @@ hljs.initHighlightingOnLoad();
 
 <h4>Author: Fahad Usman</h4>
 
-<h4>Date: 21 April 2014</h4>
+<h4>Start Date: 21 April 2014</h4>
 
 <h2>The Problem Statement: Learn what predicts happiness by using informal polling questions.</h2>
 
@@ -241,12 +241,12 @@ hljs.initHighlightingOnLoad();
 
 <p><strong>Logistic regression</strong> is quite different, the predictor/independent variable is continuous, but the response/dependent variable categorical or dichotomous (only 2 options). The logistic regression provides you with the probability of an event occurring. For every one unit increase in the predictor/independent variable, the probability of an even occurring increases/decreases. However what is actually observed is whether or not the event occurs, the logistics regression can only be tested by seeing whether it&#39;s predictions come true. </p>
 
-<p>We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with.</p>
+<p>We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with as explained above.</p>
 
 <p>Let&#39;s see if we can build a logistic regression model in R to better predict happiness&hellip;To begin, read in the train file provided:</p>
 
-<pre><code class="r">Train = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv&quot;)
-Test = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv&quot;)
+<pre><code class="r">Train = read.csv(&quot;C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv&quot;)
+Test = read.csv(&quot;C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/test.csv&quot;)
 </code></pre>
 
 <p>Always check the data structure first, So we can take a look at the structure of our new data frame by using the str and summary functions:</p>
@@ -357,10 +357,13 @@ Test = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Dat
 ##   [list output truncated]
 </code></pre>
 
-<pre><code class="r">str(Train$Q124742)
+<pre><code class="r">head(str(Train$UserID))
 </code></pre>
 
-<pre><code>##  Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 1 2 3 1 2 2 1 ...
+<pre><code>##  int [1:4619] 1 2 5 6 7 8 9 11 12 13 ...
+</code></pre>
+
+<pre><code>## NULL
 </code></pre>
 
 <pre><code class="r">summary(Train)
@@ -557,9 +560,9 @@ Test = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Dat
 ##          1342          1448          1829
 </code></pre>
 
-<p>So we have 4619 observations and 110 columns/variables.</p>
+<p>So we have 4619 observations and 110 columns/variables in the training set and 1980 obs. with 109 columns in the test set.</p>
 
-<p>Lets check how many poeple in the given population are happy and how many are not in the training set:</p>
+<p>Let&#39;s check how many poeple in the given population are happy and how many are not in the training set:</p>
 
 <pre><code class="r">
 table(Train$Happy)
@@ -599,66 +602,444 @@ prop.table(table(Train$Gender))
 ## 0.1163 0.3572 0.5265
 </code></pre>
 
-<p>Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.</p>
+<p>Here we have 52.6% male, 35.7% female and 11.6% not provided population in the training set.</p>
 
 <p>Let&#39;s check what proportion of these people are happy by the following command:</p>
 
-<pre><code class="r">prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
+<pre><code class="r">table(Train$Gender, Train$Happy)
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>##         
+##             0    1
+##           215  322
+##   Female  755  895
+##   Male   1045 1387
 </code></pre>
 
-<p>Well that&#39;s not very clean, the proportion table command by default takes each entry in the table and divides by the total number of passengers. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using &#39;2&#39; instead would give you column proportions):</p>
-
-<pre><code class="r">prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
+<pre><code class="r">prop.table(table(Train$Gender, Train$Happy))
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>##         
+##                0       1
+##          0.04655 0.06971
+##   Female 0.16346 0.19376
+##   Male   0.22624 0.30028
 </code></pre>
 
-<p>OR you can use tapply function which can show what proportion of Gender population is happy by:</p>
+<p>Here we see that for example 1387 males are happy and 1045 are not.. So the proportion of male population which are happy is about 57%. However, the proportion table command doesn&#39;t show that because by default it takes each entry in the table and divides by the total number of persons. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using &#39;2&#39; instead would give you column proportions):</p>
 
-<pre><code class="r">tapply(happinessTrain$Happy, happinessTrain$Gender, mean)
+<pre><code class="r">prop.table(table(Train$Gender, Train$Happy), 1)
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>##         
+##               0      1
+##          0.4004 0.5996
+##   Female 0.4576 0.5424
+##   Male   0.4297 0.5703
 </code></pre>
 
-<p>This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn&#39;t supplied Gender information in the train dataset are happy and 40% are not.</p>
+<p>OK, That&#39;s better! You can see male proportion who is happy is about 57%, females are about 54% and about 60% people are happy who didnt answer. You can also use tapply function which can show what proportion of Gender population is happy by:</p>
+
+<pre><code class="r">tapply(Train$Happy, Train$Gender, mean)
+</code></pre>
+
+<pre><code>##        Female   Male 
+## 0.5996 0.5424 0.5703
+</code></pre>
+
+<p>This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn&#39;t supplied Gender information in the train dataset are happy and 40% are not.</p>
 
 <p>Let&#39;s look into the income variable now (just following intuition tbh!):</p>
 
-<pre><code class="r">prop.table(table(happinessTrain$Happy, happinessTrain$Income), 1)
+<pre><code class="r">table(Train$Income, Train$Happy)
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>##                      
+##                         0   1
+##                       531 684
+##   $100,001 - $150,000 207 364
+##   $25,001 - $50,000   285 260
+##   $50,000 - $74,999   276 366
+##   $75,000 - $100,000  230 337
+##   over $150,000       203 333
+##   under $25,000       283 260
 </code></pre>
 
-<p>Interestingly, 26% of the people earning between $100,001 - $150,000 are happy and equally amount of people are not happy&hellip;Almost similar results are found in other Income ranges&hellip;So this doesn&#39;t tell much really if the income is related with the happiness&hellip;</p>
+<pre><code class="r">prop.table(table(Train$Income, Train$Happy), 1)
+</code></pre>
 
-<h2>Baseline Predictions</h2>
+<pre><code>##                      
+##                            0      1
+##                       0.4370 0.5630
+##   $100,001 - $150,000 0.3625 0.6375
+##   $25,001 - $50,000   0.5229 0.4771
+##   $50,000 - $74,999   0.4299 0.5701
+##   $75,000 - $100,000  0.4056 0.5944
+##   over $150,000       0.3787 0.6213
+##   under $25,000       0.5212 0.4788
+</code></pre>
 
-<p>we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. </p>
+<p>Interestingly, 63.7% of the people earning between $100,001 - $150,000 are happy and 36.2% of people are not happy&hellip;62% people are happy earning over $150,000 and 36.2% of people are not happy are earning between $100,001 - $150,000. This category has the least amount of unhappy people.</p>
 
-<p>In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:</p>
+<h2>Baseline Model</h2>
+
+<p>Before building any model, let&#39;s consider a simple baseline model&hellip;.we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. </p>
+
+<p>In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command again:</p>
 
 <pre><code class="r">
-table(happinessTrain$Happy)
+table(Train$Happy)
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>## 
+##    0    1 
+## 2015 2604
 </code></pre>
 
-<p>Since happiness is more common than not happy, in this case, we would predict that everyone is happy.</p>
+<p>We can see 2604 out 4619 people are happy and 2015 are not happy&hellip;Since happiness is more common than unhappy, in this case, we would predict that everyone is happy.</p>
 
-<pre><code class="r">2604/nrow(happinessTrain)
+<pre><code class="r">2604/nrow(Train)
 </code></pre>
 
-<pre><code>## Error: object &#39;happinessTrain&#39; not found
+<pre><code>## [1] 0.5638
 </code></pre>
 
-<p>If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we&#39;ll try to beat with our first linear regression model.</p>
+<p>If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. So our baseline model has an accuracy of 56.4%. This is what we&#39;ll try to beat with our logistic regression model.</p>
+
+<p>As we know that we don&#39;t have dependent variable in the test set, So we want to randomly split our data set into a training set and testing set so that we&#39;ll have a test set to measure our out-of-sample accuracy.</p>
+
+<p><strong>NOTE:</strong>  You would require caTools package</p>
+
+<pre><code class="r">install.packages(&quot;caTools&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/Fahad/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">library(caTools)
+</code></pre>
+
+<p>Now, let&#39;s use this package to randomly split our data into a training set and testing set. We can split 70% data in training set and 30% in the test set, We can use sample.split() method of caTools library to do so:</p>
+
+<pre><code class="r">
+split = sample.split(Train$Happy, SplitRatio = 0.7)
+</code></pre>
+
+<p>Sample.split randomly splits the data. But it also makes sure that the outcome variable is well-balanced in each piece. We saw earlier that 56.4% people are happy and 43.6% are unhappy. This function makes sure that in our training set, 56.4% of our population is happy and in our testing set 56.4% of our population
+is happy too. We want to do this so that our test set is representative of our training set. split variable we just created has TRUE or FALSE values only&hellip; True means put them in training set and false means put those datapoints into test set. Now let&#39;s subset the data:</p>
+
+<pre><code class="r">
+splitTrain = subset(Train, split == TRUE)
+splitTest = subset(Train, split == FALSE)
+</code></pre>
+
+<h2>Logistic Regression Model with 3 Variables only</h2>
+
+<p>Now, we are ready to build a logistic regression model using three variables Income, HouseholdStatus and EducationLevel as independent variables.</p>
+
+<pre><code class="r">
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, 
+    family = binomial)
+</code></pre>
+
+<p>family=binomial argument tells the glm function to build a logistic regression model.</p>
+
+<p>Now, let&#39;s look at our model using the summary function.</p>
+
+<pre><code class="r">
+summary(HappyLogRegModel)
+</code></pre>
+
+<pre><code>## 
+## Call:
+## glm(formula = Happy ~ Income + HouseholdStatus + EducationLevel, 
+##     family = binomial, data = splitTrain)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.714  -1.233   0.858   1.096   1.501  
+## 
+## Coefficients:
+##                                            Estimate Std. Error z value
+## (Intercept)                                  0.1945     0.0900    2.16
+## Income$100,001 - $150,000                    0.2595     0.1489    1.74
+## Income$25,001 - $50,000                     -0.3624     0.1480   -2.45
+## Income$50,000 - $74,999                      0.0573     0.1441    0.40
+## Income$75,000 - $100,000                     0.1351     0.1474    0.92
+## Incomeover $150,000                          0.2292     0.1531    1.50
+## Incomeunder $25,000                         -0.1001     0.1523   -0.66
+## HouseholdStatusDomestic Partners (no kids)   0.2137     0.2537    0.84
+## HouseholdStatusDomestic Partners (w/kids)   -0.0891     0.4275   -0.21
+## HouseholdStatusMarried (no kids)             0.5082     0.1742    2.92
+## HouseholdStatusMarried (w/kids)              0.3263     0.1504    2.17
+## HouseholdStatusSingle (no kids)             -0.1809     0.1420   -1.27
+## HouseholdStatusSingle (w/kids)              -0.3441     0.2314   -1.49
+## EducationLevelAssociate&#39;s Degree             0.2445     0.1814    1.35
+## EducationLevelBachelor&#39;s Degree              0.0598     0.1311    0.46
+## EducationLevelCurrent K-12                   0.0450     0.1366    0.33
+## EducationLevelCurrent Undergraduate         -0.0989     0.1462   -0.68
+## EducationLevelDoctoral Degree               -0.1324     0.2211   -0.60
+## EducationLevelHigh School Diploma           -0.2237     0.1508   -1.48
+## EducationLevelMaster&#39;s Degree               -0.1526     0.1509   -1.01
+##                                            Pr(&gt;|z|)   
+## (Intercept)                                  0.0306 * 
+## Income$100,001 - $150,000                    0.0813 . 
+## Income$25,001 - $50,000                      0.0143 * 
+## Income$50,000 - $74,999                      0.6910   
+## Income$75,000 - $100,000                     0.3595   
+## Incomeover $150,000                          0.1345   
+## Incomeunder $25,000                          0.5108   
+## HouseholdStatusDomestic Partners (no kids)   0.3996   
+## HouseholdStatusDomestic Partners (w/kids)    0.8349   
+## HouseholdStatusMarried (no kids)             0.0035 **
+## HouseholdStatusMarried (w/kids)              0.0300 * 
+## HouseholdStatusSingle (no kids)              0.2028   
+## HouseholdStatusSingle (w/kids)               0.1370   
+## EducationLevelAssociate&#39;s Degree             0.1777   
+## EducationLevelBachelor&#39;s Degree              0.6481   
+## EducationLevelCurrent K-12                   0.7421   
+## EducationLevelCurrent Undergraduate          0.4990   
+## EducationLevelDoctoral Degree                0.5494   
+## EducationLevelHigh School Diploma            0.1381   
+## EducationLevelMaster&#39;s Degree                0.3120   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 4429.0  on 3232  degrees of freedom
+## Residual deviance: 4322.4  on 3213  degrees of freedom
+## AIC: 4362
+## 
+## Number of Fisher Scoring iterations: 4
+</code></pre>
+
+<p>Apart from Income$25,001 - $50,000, HouseholdStatusMarried (no kids), HouseholdStatusMarried (w/kids), HouseholdStatusSingle (w/kids) Almost all the other variables are insignificant. We see here that the coefficients for HouseholdStatusMarried (no kids) and HouseholdStatusMarried (w/kids) are +ve which means that higher values in these two variables are indicative of happiness. The last thing we want to look at in the output is the AIC value. This is a measure of the quality of the model and is like Adjusted R-squared in that it accounts for the number of variables used compared to the number of observations. Unfortunately, it can only be compared between models on the same data set. But it provides a means for model selection. The preferred model is the one with the minimum AIC.</p>
+
+<p>So let&#39;s make our first prediction on the splitTest dataset by:</p>
+
+<pre><code class="r">
+predictHappiness = predict(HappyLogRegModel, newdata = splitTest, type = &quot;response&quot;)
+</code></pre>
+
+<p>Let&#39;s take a look at the statistical summary of our predictions.</p>
+
+<pre><code class="r">
+summary(predictHappiness)
+</code></pre>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.340   0.508   0.548   0.566   0.645   0.770
+</code></pre>
+
+<p>From summary above, we saw that outcome of the logistic regression model is a probability. Since we&#39;re expecting probabilities, all of the numbers should be between zero and one. And we see that the minimum value is about 0.33 and the maximum value is 0.7792. Let&#39;s see if we&#39;re predicting higher probabilities for the actual happy cases as we expect. To do this, use the tapply function, giving as arguments predictHappiness and then splitTest$Happy and then mean.</p>
+
+<pre><code class="r">
+tapply(predictHappiness, splitTest$Happy, mean)
+</code></pre>
+
+<pre><code>##      0      1 
+## 0.5538 0.5751
+</code></pre>
+
+<p>This will compute the average prediction for each of the true outcomes. So we see that for all of the true happy cases, we predict an average probability of about 0.58. And all of the true unhappy cases, we predict an average probability of about 0.55. So this is a good sign, because it looks like we&#39;re predicting a higher probability for the actual happy cases.</p>
+
+<p>Often, we want to make an actual prediction. Should we predict 1 for happy case, or should we predict 0 for unhappy case? We can convert the probabilities to predictions using what&#39;s called a <strong>threshold value, t</strong>.</p>
+
+<p>If the probability of happy case is greater than this threshold value, t, we predict happy case. But if the probability of happy case is less than the threshold value, t, then we predict unhappy case. But what value should we pick for the threshold, t? The threshold value, t, is often selected based on which errors are better. You might be thinking that making no errors is better, which is, of course, true. But it&#39;s rare to have a model that predicts perfectly, so you&#39;re bound to make some errors.</p>
+
+<p>There are two types of errors that a model can make &ndash; ones where you predict 1, or happy case, but the actual outcome is 0, and ones where you predict 0, or unhappy case, but the actual outcome is 1 or happy case. If we pick a large threshold value t, then we will predict happy case rarely, since the probability of happy case has to be really large to be greater than the threshold. This means that we will make more errors where we say unhappy case, but it&#39;s actually happy case. This approach would detect the people who are really happy. On the other hand, if the threshold value, t, is small, we predict happy case frequently, and we predict unhappy case rarely. This means that we will make more errors where we say happy case, but it&#39;s actually unhappy case. This approach would detect all people who might be happy cases. </p>
+
+<p>Some decision-makers often have a preference for one type of error over the other, which should influence the threshold value they pick. If there&#39;s no preference between the errors, the right threshold to select is t = 0.5, since it just predicts the most likely outcome. To make this discussion a little more quantitative, we use what&#39;s called a <strong>confusion matrix or classification</strong> matrix.</p>
+
+<p>We can compute two outcome measures that help us determine what types of errors we are making. They&#39;re called <strong>sensitivity and specificity</strong>.
+<em>Sensitivity</em> is equal to the true positives divided by the true positives plus the false negatives, and measures the percentage of actual happy cases that we classify correctly. This is often called the true positive rate.</p>
+
+<p><em>Specificity</em> is equal to the true negatives divided by the true negatives plus the false positives, and measures the percentage of actual unhappy cases that we classify correctly. This is often called the true negative rate. </p>
+
+<p>A model with a higher threshold will have a lower sensitivity and a higher specificity.
+A model with a lower threshold will have a higher sensitivity and a lower specificity.</p>
+
+<p>Let&#39;s create the confusion matrix by table command:</p>
+
+<pre><code class="r">
+table(splitTest$Happy, predictHappiness &gt; 0.5)
+</code></pre>
+
+<pre><code>##    
+##     FALSE TRUE
+##   0   175  430
+##   1   157  624
+</code></pre>
+
+<p>This will return TRUE if our prediction is greater than 0.5, which means we want to predict happy case, and it will return FALSE if our prediction is less than 0.5, which means we want to predict unhappy case.</p>
+
+<p>Let&#39;s compute the sensitivity, or the true positive rate, and the specificity, or the true negative rate.</p>
+
+<pre><code class="r">
+sensitivity = 625/(625 + 156)
+specificity = 172/(172 + 433)
+</code></pre>
+
+<p>The above Sensitivity and specificity are calculated at 0.5 threshold value. But which threshold should we pick? we&#39;ll see a nice visualization to help us select a threshold.</p>
+
+<p>A Receiver Operator Characteristic curve, or ROC curve, can help you decide which value of the threshold is best. To generate these ROC curves, you need ROCR package.</p>
+
+<pre><code class="r">install.packages(&quot;ROCR&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/Fahad/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">library(ROCR)
+</code></pre>
+
+<pre><code>## Loading required package: gplots
+## KernSmooth 2.23 loaded
+## Copyright M. P. Wand 1997-2009
+## 
+## Attaching package: &#39;gplots&#39;
+## 
+## The following object is masked from &#39;package:stats&#39;:
+## 
+##     lowess
+</code></pre>
+
+<p>Recall that we made predictions on our splitTest and called them predictHappiness. We&#39;ll use these predictions to create our ROC curve. Use the prediction function if ROCR package:</p>
+
+<pre><code class="r">
+ROCRpredHappiness = prediction(predictHappiness, splitTest$Happy)
+</code></pre>
+
+<p>This function takes two arguments, first the prediction variable we created when we were predicting and the second one is the actual outcome.</p>
+
+<p>Now, we need to use the performance function. This defines what we&#39;d like to plot on the x and y-axes of our ROC curve. This function takes the ROCR predection and then what we want to plot on x-axis (in our case we want to plot true +ve rate) and what we want to plot on the y-axis (in our case we want to plot False +ve rate)</p>
+
+<pre><code class="r">ROCRperfHappiness = performance(ROCRpredHappiness, &quot;tpr&quot;, &quot;fpr&quot;)
+</code></pre>
+
+<p>Now plot ROCRperfHappiness</p>
+
+<pre><code class="r">plot(ROCRperfHappiness)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAgVBMVEX9/v0AAAAAADkAAGUAOTkAOWUAOY8AZrU5AAA5ADk5AGU5OWU5OY85j9plAABlADllAGVlOQBlOY9lZjlltf2POQCPOTmPZgCPjzmPtY+P29qP2/21ZgC124+1/rW1/tq1/v3ajzna24/a/rXa/tra/v39tWX924/9/rX9/tr9/v2K9OpAAAAAK3RSTlP///////////////////////////////////////////////////////8AI8mn0AAAAAlwSFlzAAALEgAACxIB0t1+/AAADoFJREFUeJztnQtb68YRQGPSArkB7k0LtKmdFLfFD/3/H1hJfskg413ta2bnnI98cG1nPDvHq13JWumnBkzyU+kEoAyINwrijYJ4oyDeKIg3CuKNgnijIN4oiDcK4o2CeKMg3iiINwrijYJ4oyDeKIg3CuKNgnijIN4oiDcK4o2CeKMg3iiINwrijYJ4oyDeKIg3CuKNgnijIN4oiDcK4o2CeKMg3iiINwrijYJ4oyDeKIg3CuKNgnijIN4oiDcK4o2CeKMg3iiINwrijYJ4oyDeKIg3CuKNgnijIN4oiDdKiPgZSCah+ID/F1KDeKMg3iiINwrijRIsfn3fzxF/fvMNDUUJFb99ee5/r27fPUNDUULFb368nf12Dw1FoccbJXiM3zwxxmuEWb1REG+UWOIHkzvHrwEgL7Mv//kRenwlfOqHiLfAyNYX8fUzOugivnrGPQQfuXvaz+Q+78gjXgQXNAT3+O3Lo987QlYu7VyFb+o33+eTQkMGLu9TM8bXy5eHUhBfK1cOoCG+Uq5VH/F1cvWAOeLr5GrxEV8hLl+QIb4unL8WRXxF+HwVjvh68Co44qvBr96IrwXPciO+Enyrjfg68C424qvAv9aIr4EJpUZ8BUypNOL1M6nQiFfPtDojXj2It8nEpWqI183kFYqIV0zIwlTEqyVsOTLidRK8Ch3xColx7QHEqyPOFScQr4toFxpBvBYiX14G8VqIXE7E6yD6paQQr4EEVxBDvHjSXDgO8dJJVEbECydVFREvm2RFRLxo0tUQ8ZJJWELECyZlBREvl6QFRLxY0tYP8VJJXD7EyyT5bR4QL5EMd/dAvDBy3dQF8bLIVjTEywLxNslXM8RLImPJ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" alt="plot of chunk unnamed-chunk-25"/> </p>
+
+<p>The sensitivity, or true positive rate of the model, is shown on the y-axis. And the false positive rate, or 1 minus the specificity, is given on the x-axis. The line shows how these two outcome measures vary with different threshold values.</p>
+
+<p>The ROC curve always starts at the point (0, 0). This corresponds to a threshold value of 1. If you have a threshold of 1, you will not catch any happy cases, or have a sensitivity of 0. But you will correctly label of all the unhappy 
+cases, meaning you have a false positive rate of 0.</p>
+
+<p>The ROC curve always ends at the point (1,1), which corresponds to a threshold value of 0. If you have a threshold of 0, you&#39;ll catch all of the happy cases, or have a sensitivity of 1, but you&#39;ll label all of the unhappy cases as happy cases too, meaning you have a false positive rate of 1.</p>
+
+<p>The threshold decreases as you move from (0,0) to (1,1). At the point (0.25, 0.4), you&#39;re correctly labeling about 40% of the happy cases with a very small false positive rate.</p>
+
+<p>On the other hand, at the point (0.8, 0.9), you&#39;re correctly labeling about 90% of the happy cases, but have a false positive rate of 80%.</p>
+
+<p>In the middle, around (0.5, 0.6), you&#39;re correctly labeling about 60% of the happy cases, with a 50% false positive rate.</p>
+
+<p>The ROC curve captures all thresholds simultaneously. The higher the threshold, or closer to (0, 0), the higher the specificity and the lower the sensitivity. The lower the threshold, or closer to (1,1), the higher the sensitivity and lower the specificity. <strong>So which threshold value should you pick?</strong> You should select the best threshold for the trade-off you want to make.</p>
+
+<p>If you&#39;re more concerned with having a high specificity or low false positive rate, pick the threshold that maximizes the true positive rate while keeping the false positive rate really low. A threshold around (0.59, 0.7) on this ROC curve looks like a good choice in this case.</p>
+
+<p>On the other hand, if you&#39;re more concerned with having a high sensitivity or high true positive rate, pick a threshold that minimizes the false positive rate but has a very high true positive rate.</p>
+
+<p>Now, you can add colors by adding one additional argument to the plot function. print.cutoffs.at=seq(0,1,0.05), which will print the threshold values in increments of 0.05. If you want finer increments, just decrease the value of 0.05.</p>
+
+<pre><code class="r">plot(ROCRperfHappiness, colorize = TRUE, print.cutoffs.at = seq(0, 1, 0.05), 
+    text.adj = c(-0.2, 1.7))
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-26"/> </p>
+
+<p>Using this curve, we can determine which threshold value we want to use depending on our preferences as a decision-maker..</p>
+
+<p>We can now calculate the accuracy of our model by:</p>
+
+<pre><code class="r">table(splitTest$Happy, predictHappiness &gt; 0.5)
+</code></pre>
+
+<pre><code>##    
+##     FALSE TRUE
+##   0   175  430
+##   1   157  624
+</code></pre>
+
+<pre><code class="r">(625 + 172)/nrow(splitTest)
+</code></pre>
+
+<pre><code>## [1] 0.575
+</code></pre>
+
+<pre><code class="r">(625 + 172)/(172 + 433 + 156 + 625)
+</code></pre>
+
+<pre><code>## [1] 0.575
+</code></pre>
+
+<p>The accuracy of our model is about 57.5%</p>
+
+<h2>First Submission on Kaggle</h2>
+
+<p>We are now ready for our first Kaggle submission. For this we need to create the model on the Train set (which is provided by the staff of MIT) and predict on the Test set (again, provided by the staff team)</p>
+
+<pre><code class="r">
+HappyLogRegModel1 = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, 
+    family = binomial)
+</code></pre>
+
+<p>predict on the test set now:</p>
+
+<pre><code class="r">
+predictHappiness1 = predict(HappyLogRegModel1, newdata = Test, type = &quot;response&quot;)
+</code></pre>
+
+<p>Look at the summary:</p>
+
+<pre><code class="r">
+summary(predictHappiness1)
+</code></pre>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.334   0.493   0.561   0.562   0.638   0.737
+</code></pre>
+
+<p>Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:</p>
+
+<pre><code class="r"># first check the sample provided by the Staff
+sample = read.csv(&quot;sampleSubmission.csv&quot;)
+</code></pre>
+
+<pre><code>## Warning: cannot open file &#39;sampleSubmission.csv&#39;: No such file or
+## directory
+</code></pre>
+
+<pre><code>## Error: cannot open the connection
+</code></pre>
+
+<pre><code class="r">View(sample)
+</code></pre>
+
+<pre><code>## Error: cannot coerce class &quot;&quot;function&quot;&quot; to a data.frame
+</code></pre>
+
+<pre><code class="r"># we need to bind userids with our predicted probabilities
+submission = cbind(UserID = Test$UserID, Probability1 = predictHappiness1)
+# check how it looks
+View(submission)
+# time to write this dataframe into the csv format by:
+write.table(submission, file = &quot;submission1.csv&quot;, sep = &quot;,&quot;, row.names = F)
+</code></pre>
+
+<p>Now go to Kaggle and submit this csv file and WOLLAH!!!</p>
 
 <h2>Linear Regression</h2>
 

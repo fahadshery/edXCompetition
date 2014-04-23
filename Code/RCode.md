@@ -2,7 +2,7 @@
 =====================================================================
 
 #### Author: Fahad Usman
-#### Date: 21 April 2014
+#### Start Date: 21 April 2014
 
 ## The Problem Statement: Learn what predicts happiness by using informal polling questions. 
 
@@ -55,7 +55,7 @@ In other words:
 
 **Logistic regression** is quite different, the predictor/independent variable is continuous, but the response/dependent variable categorical or dichotomous (only 2 options). The logistic regression provides you with the probability of an event occurring. For every one unit increase in the predictor/independent variable, the probability of an even occurring increases/decreases. However what is actually observed is whether or not the event occurs, the logistics regression can only be tested by seeing whether it's predictions come true. 
 
-We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with.
+We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with as explained above.
 
 Let's see if we can build a logistic regression model in R to better predict happiness...To begin, read in the train file provided:
 
@@ -64,8 +64,8 @@ Let's see if we can build a logistic regression model in R to better predict hap
 
 
 ```r
-Train = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv")
-Test = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv")
+Train = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv")
+Test = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/test.csv")
 ```
 
 
@@ -181,11 +181,15 @@ str(Train)
 ```
 
 ```r
-str(Train$Q124742)
+head(str(Train$UserID))
 ```
 
 ```
-##  Factor w/ 3 levels "","No","Yes": 2 1 2 1 2 3 1 2 2 1 ...
+##  int [1:4619] 1 2 5 6 7 8 9 11 12 13 ...
+```
+
+```
+## NULL
 ```
 
 ```r
@@ -391,9 +395,9 @@ summary(Train$Q115899)
 ```
 
 
-So we have 4619 observations and 110 columns/variables.
+So we have 4619 observations and 110 columns/variables in the training set and 1980 obs. with 109 columns in the test set.
 
-Lets check how many poeple in the given population are happy and how many are not in the training set:
+Let's check how many poeple in the given population are happy and how many are not in the training set:
 
 
 ```r
@@ -445,88 +449,547 @@ prop.table(table(Train$Gender))
 ```
 
 
-Here we have 52.6% male, 35.7% female and 11.6% not answered population in the training set.
+Here we have 52.6% male, 35.7% female and 11.6% not provided population in the training set.
 
 Let's check what proportion of these people are happy by the following command:
 
 
 ```r
-prop.table(table(happinessTrain$Gender, happinessTrain$Happy))
+table(Train$Gender, Train$Happy)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+##         
+##             0    1
+##           215  322
+##   Female  755  895
+##   Male   1045 1387
+```
+
+```r
+prop.table(table(Train$Gender, Train$Happy))
+```
+
+```
+##         
+##                0       1
+##          0.04655 0.06971
+##   Female 0.16346 0.19376
+##   Male   0.22624 0.30028
 ```
 
 
-Well that's not very clean, the proportion table command by default takes each entry in the table and divides by the total number of passengers. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using '2' instead would give you column proportions):
+Here we see that for example 1387 males are happy and 1045 are not.. So the proportion of male population which are happy is about 57%. However, the proportion table command doesn't show that because by default it takes each entry in the table and divides by the total number of persons. What we want to see is the row-wise proportion, ie, the proportion of each sex that is happy, as separate groups. So we need to tell the command to give us proportions in the 1st dimension which stands for the rows (using '2' instead would give you column proportions):
 
 
 ```r
-prop.table(table(happinessTrain$Gender, happinessTrain$Happy), 1)
+prop.table(table(Train$Gender, Train$Happy), 1)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+##         
+##               0      1
+##          0.4004 0.5996
+##   Female 0.4576 0.5424
+##   Male   0.4297 0.5703
 ```
 
-OR you can use tapply function which can show what proportion of Gender population is happy by:
+OK, That's better! You can see male proportion who is happy is about 57%, females are about 54% and about 60% people are happy who didnt answer. You can also use tapply function which can show what proportion of Gender population is happy by:
 
 
 ```r
-tapply(happinessTrain$Happy, happinessTrain$Gender, mean)
+tapply(Train$Happy, Train$Gender, mean)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+##        Female   Male 
+## 0.5996 0.5424 0.5703
 ```
 
 
-This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population  is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn't supplied Gender information in the train dataset are happy and 40% are not.
+This now shows that 45.7% of all the females are not happy and 54.2% are happy. Similarly, 57% overall male population is happy and 43% is not happy. This shows that male population is a bit more happier than the female population and finally about 60% people who didn't supplied Gender information in the train dataset are happy and 40% are not.
 
 Let's look into the income variable now (just following intuition tbh!):
 
 
 ```r
-prop.table(table(happinessTrain$Happy, happinessTrain$Income), 1)
+table(Train$Income, Train$Happy)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+##                      
+##                         0   1
+##                       531 684
+##   $100,001 - $150,000 207 364
+##   $25,001 - $50,000   285 260
+##   $50,000 - $74,999   276 366
+##   $75,000 - $100,000  230 337
+##   over $150,000       203 333
+##   under $25,000       283 260
 ```
 
-Interestingly, 26% of the people earning between $100,001 - $150,000 are happy and equally amount of people are not happy...Almost similar results are found in other Income ranges...So this doesn't tell much really if the income is related with the happiness...
+```r
+prop.table(table(Train$Income, Train$Happy), 1)
+```
 
+```
+##                      
+##                            0      1
+##                       0.4370 0.5630
+##   $100,001 - $150,000 0.3625 0.6375
+##   $25,001 - $50,000   0.5229 0.4771
+##   $50,000 - $74,999   0.4299 0.5701
+##   $75,000 - $100,000  0.4056 0.5944
+##   over $150,000       0.3787 0.6213
+##   under $25,000       0.5212 0.4788
+```
 
-## Baseline Predictions
-we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. 
+Interestingly, 63.7% of the people earning between $100,001 - $150,000 are happy and 36.2% of people are not happy...62% people are happy earning over $150,000 and 36.2% of people are not happy are earning between $100,001 - $150,000. This category has the least amount of unhappy people.
 
-In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command:
+## Baseline Model
+
+Before building any model, let's consider a simple baseline model....we can compare our predictions to the baseline method of predicting the average/mean outcome for all data points. 
+
+In a classification problem, a standard baseline method is to just predict the most frequent outcome for all observations. So to check the common outcome we can use the table command again:
 
 
 ```r
 
-table(happinessTrain$Happy)
+table(Train$Happy)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+## 
+##    0    1 
+## 2015 2604
 ```
 
 
-Since happiness is more common than not happy, in this case, we would predict that everyone is happy.
+We can see 2604 out 4619 people are happy and 2015 are not happy...Since happiness is more common than unhappy, in this case, we would predict that everyone is happy.
 
 
 ```r
-2604/nrow(happinessTrain)
+2604/nrow(Train)
 ```
 
 ```
-## Error: object 'happinessTrain' not found
+## [1] 0.5638
 ```
 
 
-If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. This is what we'll try to beat with our first linear regression model.
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. So our baseline model has an accuracy of 56.4%. This is what we'll try to beat with our logistic regression model.
+
+As we know that we don't have dependent variable in the test set, So we want to randomly split our data set into a training set and testing set so that we'll have a test set to measure our out-of-sample accuracy.
+
+**NOTE:**  You would require caTools package
+
+
+```r
+install.packages("caTools")
+```
+
+```
+## Installing package into 'C:/Users/Fahad/Documents/R/win-library/3.1'
+## (as 'lib' is unspecified)
+```
+
+```
+## Error: trying to use CRAN without setting a mirror
+```
+
+```r
+library(caTools)
+```
+
+
+Now, let's use this package to randomly split our data into a training set and testing set. We can split 70% data in training set and 30% in the test set, We can use sample.split() method of caTools library to do so:
+
+
+```r
+
+split = sample.split(Train$Happy, SplitRatio = 0.7)
+```
+
+
+Sample.split randomly splits the data. But it also makes sure that the outcome variable is well-balanced in each piece. We saw earlier that 56.4% people are happy and 43.6% are unhappy. This function makes sure that in our training set, 56.4% of our population is happy and in our testing set 56.4% of our population
+is happy too. We want to do this so that our test set is representative of our training set. split variable we just created has TRUE or FALSE values only... True means put them in training set and false means put those datapoints into test set. Now let's subset the data:
+
+
+```r
+
+splitTrain = subset(Train, split == TRUE)
+splitTest = subset(Train, split == FALSE)
+```
+
+
+## Logistic Regression Model with 3 Variables only
+
+Now, we are ready to build a logistic regression model using three variables Income, HouseholdStatus and EducationLevel as independent variables.
+
+
+```r
+
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, 
+    family = binomial)
+```
+
+
+family=binomial argument tells the glm function to build a logistic regression model.
+
+Now, let's look at our model using the summary function.
+
+
+```r
+
+summary(HappyLogRegModel)
+```
+
+```
+## 
+## Call:
+## glm(formula = Happy ~ Income + HouseholdStatus + EducationLevel, 
+##     family = binomial, data = splitTrain)
+## 
+## Deviance Residuals: 
+##    Min      1Q  Median      3Q     Max  
+## -1.714  -1.233   0.858   1.096   1.501  
+## 
+## Coefficients:
+##                                            Estimate Std. Error z value
+## (Intercept)                                  0.1945     0.0900    2.16
+## Income$100,001 - $150,000                    0.2595     0.1489    1.74
+## Income$25,001 - $50,000                     -0.3624     0.1480   -2.45
+## Income$50,000 - $74,999                      0.0573     0.1441    0.40
+## Income$75,000 - $100,000                     0.1351     0.1474    0.92
+## Incomeover $150,000                          0.2292     0.1531    1.50
+## Incomeunder $25,000                         -0.1001     0.1523   -0.66
+## HouseholdStatusDomestic Partners (no kids)   0.2137     0.2537    0.84
+## HouseholdStatusDomestic Partners (w/kids)   -0.0891     0.4275   -0.21
+## HouseholdStatusMarried (no kids)             0.5082     0.1742    2.92
+## HouseholdStatusMarried (w/kids)              0.3263     0.1504    2.17
+## HouseholdStatusSingle (no kids)             -0.1809     0.1420   -1.27
+## HouseholdStatusSingle (w/kids)              -0.3441     0.2314   -1.49
+## EducationLevelAssociate's Degree             0.2445     0.1814    1.35
+## EducationLevelBachelor's Degree              0.0598     0.1311    0.46
+## EducationLevelCurrent K-12                   0.0450     0.1366    0.33
+## EducationLevelCurrent Undergraduate         -0.0989     0.1462   -0.68
+## EducationLevelDoctoral Degree               -0.1324     0.2211   -0.60
+## EducationLevelHigh School Diploma           -0.2237     0.1508   -1.48
+## EducationLevelMaster's Degree               -0.1526     0.1509   -1.01
+##                                            Pr(>|z|)   
+## (Intercept)                                  0.0306 * 
+## Income$100,001 - $150,000                    0.0813 . 
+## Income$25,001 - $50,000                      0.0143 * 
+## Income$50,000 - $74,999                      0.6910   
+## Income$75,000 - $100,000                     0.3595   
+## Incomeover $150,000                          0.1345   
+## Incomeunder $25,000                          0.5108   
+## HouseholdStatusDomestic Partners (no kids)   0.3996   
+## HouseholdStatusDomestic Partners (w/kids)    0.8349   
+## HouseholdStatusMarried (no kids)             0.0035 **
+## HouseholdStatusMarried (w/kids)              0.0300 * 
+## HouseholdStatusSingle (no kids)              0.2028   
+## HouseholdStatusSingle (w/kids)               0.1370   
+## EducationLevelAssociate's Degree             0.1777   
+## EducationLevelBachelor's Degree              0.6481   
+## EducationLevelCurrent K-12                   0.7421   
+## EducationLevelCurrent Undergraduate          0.4990   
+## EducationLevelDoctoral Degree                0.5494   
+## EducationLevelHigh School Diploma            0.1381   
+## EducationLevelMaster's Degree                0.3120   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 4429.0  on 3232  degrees of freedom
+## Residual deviance: 4322.4  on 3213  degrees of freedom
+## AIC: 4362
+## 
+## Number of Fisher Scoring iterations: 4
+```
+
+Apart from Income$25,001 - $50,000, HouseholdStatusMarried (no kids), HouseholdStatusMarried (w/kids), HouseholdStatusSingle (w/kids) Almost all the other variables are insignificant. We see here that the coefficients for HouseholdStatusMarried (no kids) and HouseholdStatusMarried (w/kids) are +ve which means that higher values in these two variables are indicative of happiness. The last thing we want to look at in the output is the AIC value. This is a measure of the quality of the model and is like Adjusted R-squared in that it accounts for the number of variables used compared to the number of observations. Unfortunately, it can only be compared between models on the same data set. But it provides a means for model selection. The preferred model is the one with the minimum AIC.
+
+So let's make our first prediction on the splitTest dataset by:
+
+
+```r
+
+predictHappiness = predict(HappyLogRegModel, newdata = splitTest, type = "response")
+```
+
+
+Let's take a look at the statistical summary of our predictions.
+
+
+```r
+
+summary(predictHappiness)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.340   0.508   0.548   0.566   0.645   0.770
+```
+
+
+From summary above, we saw that outcome of the logistic regression model is a probability. Since we're expecting probabilities, all of the numbers should be between zero and one. And we see that the minimum value is about 0.33 and the maximum value is 0.7792. Let's see if we're predicting higher probabilities for the actual happy cases as we expect. To do this, use the tapply function, giving as arguments predictHappiness and then splitTest$Happy and then mean.
+
+
+```r
+
+tapply(predictHappiness, splitTest$Happy, mean)
+```
+
+```
+##      0      1 
+## 0.5538 0.5751
+```
+
+This will compute the average prediction for each of the true outcomes. So we see that for all of the true happy cases, we predict an average probability of about 0.58. And all of the true unhappy cases, we predict an average probability of about 0.55. So this is a good sign, because it looks like we're predicting a higher probability for the actual happy cases.
+
+Often, we want to make an actual prediction. Should we predict 1 for happy case, or should we predict 0 for unhappy case? We can convert the probabilities to predictions using what's called a **threshold value, t**.
+
+If the probability of happy case is greater than this threshold value, t, we predict happy case. But if the probability of happy case is less than the threshold value, t, then we predict unhappy case. But what value should we pick for the threshold, t? The threshold value, t, is often selected based on which errors are better. You might be thinking that making no errors is better, which is, of course, true. But it's rare to have a model that predicts perfectly, so you're bound to make some errors.
+
+There are two types of errors that a model can make -- ones where you predict 1, or happy case, but the actual outcome is 0, and ones where you predict 0, or unhappy case, but the actual outcome is 1 or happy case. If we pick a large threshold value t, then we will predict happy case rarely, since the probability of happy case has to be really large to be greater than the threshold. This means that we will make more errors where we say unhappy case, but it's actually happy case. This approach would detect the people who are really happy. On the other hand, if the threshold value, t, is small, we predict happy case frequently, and we predict unhappy case rarely. This means that we will make more errors where we say happy case, but it's actually unhappy case. This approach would detect all people who might be happy cases. 
+
+Some decision-makers often have a preference for one type of error over the other, which should influence the threshold value they pick. If there's no preference between the errors, the right threshold to select is t = 0.5, since it just predicts the most likely outcome. To make this discussion a little more quantitative, we use what's called a **confusion matrix or classification** matrix.
+
+We can compute two outcome measures that help us determine what types of errors we are making. They're called **sensitivity and specificity**.
+*Sensitivity* is equal to the true positives divided by the true positives plus the false negatives, and measures the percentage of actual happy cases that we classify correctly. This is often called the true positive rate.
+
+*Specificity* is equal to the true negatives divided by the true negatives plus the false positives, and measures the percentage of actual unhappy cases that we classify correctly. This is often called the true negative rate. 
+
+A model with a higher threshold will have a lower sensitivity and a higher specificity.
+A model with a lower threshold will have a higher sensitivity and a lower specificity.
+
+Let's create the confusion matrix by table command:
+
+
+```r
+
+table(splitTest$Happy, predictHappiness > 0.5)
+```
+
+```
+##    
+##     FALSE TRUE
+##   0   175  430
+##   1   157  624
+```
+
+
+This will return TRUE if our prediction is greater than 0.5, which means we want to predict happy case, and it will return FALSE if our prediction is less than 0.5, which means we want to predict unhappy case.
+
+Let's compute the sensitivity, or the true positive rate, and the specificity, or the true negative rate.
+
+
+```r
+
+sensitivity = 625/(625 + 156)
+specificity = 172/(172 + 433)
+```
+
+The above Sensitivity and specificity are calculated at 0.5 threshold value. But which threshold should we pick? we'll see a nice visualization to help us select a threshold.
+
+A Receiver Operator Characteristic curve, or ROC curve, can help you decide which value of the threshold is best. To generate these ROC curves, you need ROCR package.
+
+
+```r
+install.packages("ROCR")
+```
+
+```
+## Installing package into 'C:/Users/Fahad/Documents/R/win-library/3.1'
+## (as 'lib' is unspecified)
+```
+
+```
+## Error: trying to use CRAN without setting a mirror
+```
+
+```r
+library(ROCR)
+```
+
+```
+## Loading required package: gplots
+## KernSmooth 2.23 loaded
+## Copyright M. P. Wand 1997-2009
+## 
+## Attaching package: 'gplots'
+## 
+## The following object is masked from 'package:stats':
+## 
+##     lowess
+```
+
+
+Recall that we made predictions on our splitTest and called them predictHappiness. We'll use these predictions to create our ROC curve. Use the prediction function if ROCR package:
+
+
+```r
+
+ROCRpredHappiness = prediction(predictHappiness, splitTest$Happy)
+```
+
+This function takes two arguments, first the prediction variable we created when we were predicting and the second one is the actual outcome.
+
+Now, we need to use the performance function. This defines what we'd like to plot on the x and y-axes of our ROC curve. This function takes the ROCR predection and then what we want to plot on x-axis (in our case we want to plot true +ve rate) and what we want to plot on the y-axis (in our case we want to plot False +ve rate)
+
+
+```r
+ROCRperfHappiness = performance(ROCRpredHappiness, "tpr", "fpr")
+```
+
+
+Now plot ROCRperfHappiness
+
+
+```r
+plot(ROCRperfHappiness)
+```
+
+![plot of chunk unnamed-chunk-25](figure/unnamed-chunk-25.png) 
+
+
+The sensitivity, or true positive rate of the model, is shown on the y-axis. And the false positive rate, or 1 minus the specificity, is given on the x-axis. The line shows how these two outcome measures vary with different threshold values.
+
+The ROC curve always starts at the point (0, 0). This corresponds to a threshold value of 1. If you have a threshold of 1, you will not catch any happy cases, or have a sensitivity of 0. But you will correctly label of all the unhappy 
+cases, meaning you have a false positive rate of 0.
+
+The ROC curve always ends at the point (1,1), which corresponds to a threshold value of 0. If you have a threshold of 0, you'll catch all of the happy cases, or have a sensitivity of 1, but you'll label all of the unhappy cases as happy cases too, meaning you have a false positive rate of 1.
+
+The threshold decreases as you move from (0,0) to (1,1). At the point (0.25, 0.4), you're correctly labeling about 40% of the happy cases with a very small false positive rate.
+
+On the other hand, at the point (0.8, 0.9), you're correctly labeling about 90% of the happy cases, but have a false positive rate of 80%.
+
+In the middle, around (0.5, 0.6), you're correctly labeling about 60% of the happy cases, with a 50% false positive rate.
+
+The ROC curve captures all thresholds simultaneously. The higher the threshold, or closer to (0, 0), the higher the specificity and the lower the sensitivity. The lower the threshold, or closer to (1,1), the higher the sensitivity and lower the specificity. **So which threshold value should you pick?** You should select the best threshold for the trade-off you want to make.
+
+If you're more concerned with having a high specificity or low false positive rate, pick the threshold that maximizes the true positive rate while keeping the false positive rate really low. A threshold around (0.59, 0.7) on this ROC curve looks like a good choice in this case.
+
+On the other hand, if you're more concerned with having a high sensitivity or high true positive rate, pick a threshold that minimizes the false positive rate but has a very high true positive rate.
+
+Now, you can add colors by adding one additional argument to the plot function. print.cutoffs.at=seq(0,1,0.05), which will print the threshold values in increments of 0.05. If you want finer increments, just decrease the value of 0.05.
+
+
+```r
+plot(ROCRperfHappiness, colorize = TRUE, print.cutoffs.at = seq(0, 1, 0.05), 
+    text.adj = c(-0.2, 1.7))
+```
+
+![plot of chunk unnamed-chunk-26](figure/unnamed-chunk-26.png) 
+
+Using this curve, we can determine which threshold value we want to use depending on our preferences as a decision-maker..
+
+We can now calculate the accuracy of our model by:
+
+
+```r
+table(splitTest$Happy, predictHappiness > 0.5)
+```
+
+```
+##    
+##     FALSE TRUE
+##   0   175  430
+##   1   157  624
+```
+
+```r
+(625 + 172)/nrow(splitTest)
+```
+
+```
+## [1] 0.575
+```
+
+```r
+(625 + 172)/(172 + 433 + 156 + 625)
+```
+
+```
+## [1] 0.575
+```
+
+
+The accuracy of our model is about 57.5%
+
+## First Submission on Kaggle
+
+We are now ready for our first Kaggle submission. For this we need to create the model on the Train set (which is provided by the staff of MIT) and predict on the Test set (again, provided by the staff team)
+
+
+```r
+
+HappyLogRegModel1 = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, 
+    family = binomial)
+```
+
+
+predict on the test set now:
+
+
+
+```r
+
+predictHappiness1 = predict(HappyLogRegModel1, newdata = Test, type = "response")
+```
+
+
+Look at the summary:
+
+
+```r
+
+summary(predictHappiness1)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.334   0.493   0.561   0.562   0.638   0.737
+```
+
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+
+```r
+# first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+```
+
+```
+## Warning: cannot open file 'sampleSubmission.csv': No such file or
+## directory
+```
+
+```
+## Error: cannot open the connection
+```
+
+```r
+View(sample)
+```
+
+```
+## Error: cannot coerce class ""function"" to a data.frame
+```
+
+```r
+# we need to bind userids with our predicted probabilities
+submission = cbind(UserID = Test$UserID, Probability1 = predictHappiness1)
+# check how it looks
+View(submission)
+# time to write this dataframe into the csv format by:
+write.table(submission, file = "submission1.csv", sep = ",", row.names = F)
+```
+
+
+Now go to Kaggle and submit this csv file and WOLLAH!!!
 
 ## Linear Regression
 

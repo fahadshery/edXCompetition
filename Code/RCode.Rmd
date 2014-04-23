@@ -2,7 +2,7 @@
 =====================================================================
 
 #### Author: Fahad Usman
-#### Date: 21 April 2014
+#### Start Date: 21 April 2014
 
 ## The Problem Statement: Learn what predicts happiness by using informal polling questions. 
 
@@ -55,7 +55,7 @@ In other words:
 
 **Logistic regression** is quite different, the predictor/independent variable is continuous, but the response/dependent variable categorical or dichotomous (only 2 options). The logistic regression provides you with the probability of an event occurring. For every one unit increase in the predictor/independent variable, the probability of an even occurring increases/decreases. However what is actually observed is whether or not the event occurs, the logistics regression can only be tested by seeing whether it's predictions come true. 
 
-We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with.
+We have seen linear regression as a way of predicting continuous outcomes. Of course, we can utilize linear regression to predict happiness here, but then we have to round the outcome to 0 or 1. Instead we will use the logistic regression, which is an extension of linear regression, to environments where the dependent variable is categorical. In our case, 0 or 1. to start with as explained above.
 
 Let's see if we can build a logistic regression model in R to better predict happiness...To begin, read in the train file provided:
 
@@ -65,8 +65,8 @@ library(knitr)
 ```
 
 ```{r}
-Train = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv")
-Test = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv")
+Train = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv")
+Test = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/test.csv")
 
 ```
 
@@ -81,7 +81,7 @@ summary(Train$Q114386)
 summary(Train$Q115899)
 ```
 
-So we have 4619 observations and 110 columns/variables.
+So we have 4619 observations and 110 columns/variables in the training set and 1980 obs. with 109 columns in the test set.
 
 Let's check how many poeple in the given population are happy and how many are not in the training set:
 
@@ -118,7 +118,7 @@ Here we see that for example 1387 males are happy and 1045 are not.. So the prop
 prop.table(table(Train$Gender, Train$Happy), 1)
 
 ```
-OK, That's better! You can also use tapply function which can show what proportion of Gender population is happy by:
+OK, That's better! You can see male proportion who is happy is about 57%, females are about 54% and about 60% people are happy who didnt answer. You can also use tapply function which can show what proportion of Gender population is happy by:
 
 ```{r}
 tapply(Train$Happy, Train$Gender, mean)
@@ -154,14 +154,13 @@ We can see 2604 out 4619 people are happy and 2015 are not happy...Since happine
 
 ```
 
-If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. So our baseline model has an accuracy of 56.4%.
-This is what we'll try to beat with our logistic regression model.
+If we did this, we would get 2604 out of the 4619 observations correct, or have an accuracy of about 56.4%. So our baseline model has an accuracy of 56.4%. This is what we'll try to beat with our logistic regression model.
 
 As we know that we don't have dependent variable in the test set, So we want to randomly split our data set into a training set and testing set so that we'll have a test set to measure our out-of-sample accuracy.
 
 **NOTE:**  You would require caTools package
 
-```{r, include=FALSE}
+```{r}
 install.packages("caTools")
 library(caTools)
 ```
@@ -175,7 +174,7 @@ split = sample.split(Train$Happy, SplitRatio=0.7)
 ```
 
 Sample.split randomly splits the data. But it also makes sure that the outcome variable is well-balanced in each piece. We saw earlier that 56.4% people are happy and 43.6% are unhappy. This function makes sure that in our training set, 56.4% of our population is happy and in our testing set 56.4% of our population
-is happy too. We want to do this so that our test set is representative of our training set. split now has TRUE or FALSE values... True means put them in training set and false means put those into test set. Now let's subset the data:
+is happy too. We want to do this so that our test set is representative of our training set. split variable we just created has TRUE or FALSE values only... True means put them in training set and false means put those datapoints into test set. Now let's subset the data:
 
 ```{r}
 
@@ -183,11 +182,14 @@ splitTrain = subset(Train, split==TRUE)
 splitTest = subset(Train, split==FALSE)
 
 ```
+
+## Logistic Regression Model with 3 Variables only
+
 Now, we are ready to build a logistic regression model using three variables Income, HouseholdStatus and EducationLevel as independent variables.
 
 ```{r}
 
-HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, family=binomial)
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, family=binomial)
 
 ```
 
@@ -200,13 +202,13 @@ Now, let's look at our model using the summary function.
 summary(HappyLogRegModel)
 
 ```
-Apart from Income$25,001 - $50,000, HouseholdStatusMarried (no kids), HouseholdStatusMarried (w/kids), HouseholdStatusSingle (w/kids) Almost all the other variables are insignificant. We see here that the coefficients for HouseholdStatusMarried (no kids) and HouseholdStatusMarried (w/kids) are +ve which means that higher values in these two variables are indicative are indicative of happiness. The last thing we want to look at in the output is the AIC value. This is a measure of the quality of the model and is like Adjusted R-squared in that it accounts for the number of variables used compared to the number of observations. Unfortunately, it can only be compared between models on the same data set. But it provides a means for model selection. The preferred model is the one with the minimum AIC.
+Apart from Income$25,001 - $50,000, HouseholdStatusMarried (no kids), HouseholdStatusMarried (w/kids), HouseholdStatusSingle (w/kids) Almost all the other variables are insignificant. We see here that the coefficients for HouseholdStatusMarried (no kids) and HouseholdStatusMarried (w/kids) are +ve which means that higher values in these two variables are indicative of happiness. The last thing we want to look at in the output is the AIC value. This is a measure of the quality of the model and is like Adjusted R-squared in that it accounts for the number of variables used compared to the number of observations. Unfortunately, it can only be compared between models on the same data set. But it provides a means for model selection. The preferred model is the one with the minimum AIC.
 
-So let's make our first prediction on the Train dataset by:
+So let's make our first prediction on the splitTest dataset by:
 
 ```{r}
 
-predictHappiness = predict(HappyLogRegModel, newdata=Test, type="response")
+predictHappiness = predict(HappyLogRegModel, newdata=splitTest, type="response")
 
 ```
 
@@ -218,21 +220,22 @@ summary(predictHappiness)
 
 ```
 
-From summary above, we saw that outcome of the logistic regression model is a probability. Since we're expecting probabilities, all of the numbers should be between zero and one. And we see that the minimum value is about 0.25 and the maximum value is 0.778. Let's see if we're predicting higher probabilities for the actual happy cases as we expect. To do this, use the tapply function, giving as arguments predictHappiness and then splitTrain$Happy and then mean.
+From summary above, we saw that outcome of the logistic regression model is a probability. Since we're expecting probabilities, all of the numbers should be between zero and one. And we see that the minimum value is about 0.33 and the maximum value is 0.7792. Let's see if we're predicting higher probabilities for the actual happy cases as we expect. To do this, use the tapply function, giving as arguments predictHappiness and then splitTest$Happy and then mean.
 
 ```{r}
 
-#tapply(predictHappiness, Test$Happy, mean)
+tapply(predictHappiness, splitTest$Happy, mean)
 
 ```
-This will compute the average prediction for each of the true outcomes. So we see that for all of the true happy cases, we predict an average probability of about 0.58. And all of the true unhappy cases, we predict an average probability of about 0.54. So this is a good sign, because it looks like we're predicting a higher probability for the actual happy cases.
+This will compute the average prediction for each of the true outcomes. So we see that for all of the true happy cases, we predict an average probability of about 0.58. And all of the true unhappy cases, we predict an average probability of about 0.55. So this is a good sign, because it looks like we're predicting a higher probability for the actual happy cases.
 
 Often, we want to make an actual prediction. Should we predict 1 for happy case, or should we predict 0 for unhappy case? We can convert the probabilities to predictions using what's called a **threshold value, t**.
 
 If the probability of happy case is greater than this threshold value, t, we predict happy case. But if the probability of happy case is less than the threshold value, t, then we predict unhappy case. But what value should we pick for the threshold, t? The threshold value, t, is often selected based on which errors are better. You might be thinking that making no errors is better, which is, of course, true. But it's rare to have a model that predicts perfectly, so you're bound to make some errors.
 
-There are two types of errors that a model can make -- ones where you predict 1, or happy case, but the actual outcome is 0, and ones where you predict 0, or unhappy case, but the actual outcome is 1 or happy case. If we pick a large threshold value t, then we will predict happy case rarely, since the probability of happy case has to be really large to be greater than the threshold. This means that we will make more errors where we say unhappy case, but it's actually happy case. This approach would detect the people who are really happy. On the other hand, if the threshold value, t, is small, we predict happy case frequently, and we predict unhappy case rarely. This means that we will make more errors where we say happy case, but it's actually unhappy case. This approach would detect all people who might be happy cases. Some decision-makers often have a preference for one type of error over the other, which should influence the threshold value they pick. If there's no preference between the errors, the right threshold to select is t = 0.5, since it just predicts the most likely outcome. To make this discussion a little more quantitative, we use what's called a **confusion matrix or classification**.
-matrix.
+There are two types of errors that a model can make -- ones where you predict 1, or happy case, but the actual outcome is 0, and ones where you predict 0, or unhappy case, but the actual outcome is 1 or happy case. If we pick a large threshold value t, then we will predict happy case rarely, since the probability of happy case has to be really large to be greater than the threshold. This means that we will make more errors where we say unhappy case, but it's actually happy case. This approach would detect the people who are really happy. On the other hand, if the threshold value, t, is small, we predict happy case frequently, and we predict unhappy case rarely. This means that we will make more errors where we say happy case, but it's actually unhappy case. This approach would detect all people who might be happy cases. 
+
+Some decision-makers often have a preference for one type of error over the other, which should influence the threshold value they pick. If there's no preference between the errors, the right threshold to select is t = 0.5, since it just predicts the most likely outcome. To make this discussion a little more quantitative, we use what's called a **confusion matrix or classification** matrix.
 
 We can compute two outcome measures that help us determine what types of errors we are making. They're called **sensitivity and specificity**.
 *Sensitivity* is equal to the true positives divided by the true positives plus the false negatives, and measures the percentage of actual happy cases that we classify correctly. This is often called the true positive rate.
@@ -246,7 +249,7 @@ Let's create the confusion matrix by table command:
 
 ```{r}
 
-table(splitTrain$Happy, predictHappiness > 0.5)
+table(splitTest$Happy, predictHappiness > 0.5)
 
 ```
 
@@ -256,30 +259,112 @@ Let's compute the sensitivity, or the true positive rate, and the specificity, o
 
 ```{r}
 
-sensitivity = 1472/(1472+351)
-specificity = 445/(445+965)
+sensitivity = 625/(625+156)
+specificity = 172/(172+433)
 
 ```
-Sensitivity and specificity are calculated at 0.5 threshold value. But which threshold should we pick? we'll see a nice visualization to help us select a threshold.
+The above Sensitivity and specificity are calculated at 0.5 threshold value. But which threshold should we pick? we'll see a nice visualization to help us select a threshold.
 
-Thus we can calculate the accuracy of our model by:
+A Receiver Operator Characteristic curve, or ROC curve, can help you decide which value of the threshold is best. To generate these ROC curves, you need ROCR package.
+
+```{r}
+install.packages("ROCR")
+library(ROCR)
+```
+
+Recall that we made predictions on our splitTest and called them predictHappiness. We'll use these predictions to create our ROC curve. Use the prediction function if ROCR package:
 
 ```{r}
 
-(445+1472)/nrow(splitTrain)
-(445+1472)/(445+965+351+1472)
+ROCRpredHappiness = prediction(predictHappiness, splitTest$Happy)
+
+```
+This function takes two arguments, first the prediction variable we created when we were predicting and the second one is the actual outcome.
+
+Now, we need to use the performance function. This defines what we'd like to plot on the x and y-axes of our ROC curve. This function takes the ROCR predection and then what we want to plot on x-axis (in our case we want to plot true +ve rate) and what we want to plot on the y-axis (in our case we want to plot False +ve rate)
+
+```{r}
+ROCRperfHappiness = performance(ROCRpredHappiness, "tpr", "fpr")
 
 ```
 
+Now plot ROCRperfHappiness
+
+```{r}
+plot(ROCRperfHappiness)
+```
+
+The sensitivity, or true positive rate of the model, is shown on the y-axis. And the false positive rate, or 1 minus the specificity, is given on the x-axis. The line shows how these two outcome measures vary with different threshold values.
+
+The ROC curve always starts at the point (0, 0). This corresponds to a threshold value of 1. If you have a threshold of 1, you will not catch any happy cases, or have a sensitivity of 0. But you will correctly label of all the unhappy 
+cases, meaning you have a false positive rate of 0.
+
+The ROC curve always ends at the point (1,1), which corresponds to a threshold value of 0. If you have a threshold of 0, you'll catch all of the happy cases, or have a sensitivity of 1, but you'll label all of the unhappy cases as happy cases too, meaning you have a false positive rate of 1.
+
+The threshold decreases as you move from (0,0) to (1,1). At the point (0.25, 0.4), you're correctly labeling about 40% of the happy cases with a very small false positive rate.
+
+On the other hand, at the point (0.8, 0.9), you're correctly labeling about 90% of the happy cases, but have a false positive rate of 80%.
+
+In the middle, around (0.5, 0.6), you're correctly labeling about 60% of the happy cases, with a 50% false positive rate.
+
+The ROC curve captures all thresholds simultaneously. The higher the threshold, or closer to (0, 0), the higher the specificity and the lower the sensitivity. The lower the threshold, or closer to (1,1), the higher the sensitivity and lower the specificity. **So which threshold value should you pick?** You should select the best threshold for the trade-off you want to make.
+
+If you're more concerned with having a high specificity or low false positive rate, pick the threshold that maximizes the true positive rate while keeping the false positive rate really low. A threshold around (0.59, 0.7) on this ROC curve looks like a good choice in this case.
+
+On the other hand, if you're more concerned with having a high sensitivity or high true positive rate, pick a threshold that minimizes the false positive rate but has a very high true positive rate.
+
+Now, you can add colors by adding one additional argument to the plot function. print.cutoffs.at=seq(0,1,0.05), which will print the threshold values in increments of 0.05. If you want finer increments, just decrease the value of 0.05.
+
+```{r}
+plot(ROCRperfHappiness, colorize=TRUE, print.cutoffs.at=seq(0,1,0.05), text.adj=c(-0.2,1.7))
+
+```
+Using this curve, we can determine which threshold value we want to use depending on our preferences as a decision-maker..
+
+We can now calculate the accuracy of our model by:
+
+```{r}
+table(splitTest$Happy, predictHappiness > 0.5)
+(625+172)/nrow(splitTest)
+(625+172)/(172+433+156+625)
+
+```
+
+The accuracy of our model is about 57.5%
+
 ## First Submission on Kaggle
 
+We are now ready for our first Kaggle submission. For this we need to create the model on the Train set (which is provided by the staff of MIT) and predict on the Test set (again, provided by the staff team)
+
+```{r}
+
+HappyLogRegModel1 = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, family=binomial)
+
+```
+
+predict on the test set now:
+
+
+```{r}
+
+predictHappiness1 = predict(HappyLogRegModel1, newdata=Test, type="response")
+
+```
+
+Look at the summary:
+
+```{r}
+
+summary(predictHappiness1)
+```
 Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
 
 ```{r}
 #first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
 View(sample)
 #we need to bind userids with our predicted probabilities
-submission = cbind(UserID=Test$UserID, Probability1=predictHappiness)
+submission = cbind(UserID=Test$UserID, Probability1=predictHappiness1)
 #check how it looks
 View(submission)
 #time to write this dataframe into the csv format by:
