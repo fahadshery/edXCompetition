@@ -373,6 +373,83 @@ write.table(submission,file="submission1.csv",sep=",",row.names=F)
 
 Now go to Kaggle and submit this csv file and WOLLAH!!!
 
+## Logistic Regression Model with All the independent variables
+
+```{r}
+
+HappyLogRegModelALL = glm(Happy ~ . -UserID - YOB -votes, data = splitTrain, family=binomial)
+
+```
+
+predict on the test set now:
+
+
+```{r}
+
+predictHappinessALL = predict(HappyLogRegModelALL, newdata=splitTest, type="response")
+
+```
+
+Look at the Model:
+
+```{r}
+summary(HappyLogRegModelALL)
+summary(predictHappinessALL)
+```
+
+Build the confusion matrix
+
+```{r}
+
+table(splitTest$Happy, predictHappinessALL > 0.5)
+```
+
+Accuracy of the model is:
+
+```{r}
+
+(598+344)/nrow(splitTest)
+```
+
+So this is better model because our accuracy improved from 57% to 67%. Let's submit this on the kaggle:
+
+```{r}
+
+HappyLogRegModelALL1 = glm(Happy ~ . -UserID -YOB -votes, data = Train, family=binomial)
+
+```
+
+predict on the test set now:
+
+
+```{r}
+
+predictHappinessALL1 = predict(HappyLogRegModelALL1, newdata=Test, type="response")
+
+```
+
+Look at the Model and summary:
+
+```{r}
+summary(HappyLogRegModelALL1)
+summary(predictHappinessALL1)
+```
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+View(sample)
+#we need to bind userids with our predicted probabilities
+submission = cbind(UserID=Test$UserID, Probability1=predictHappinessALL1)
+#check how it looks
+View(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission2.csv",sep=",",row.names=F)
+```
+
+
+
 ## Linear Regression
 
 Linear regression discards observations with missing data, so we will remove all such observations from the training and testing sets. Later, we will learn about imputation, which deals with missing data by filling in missing values with plausible information.
