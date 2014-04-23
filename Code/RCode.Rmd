@@ -187,7 +187,7 @@ Now, we are ready to build a logistic regression model using three variables Inc
 
 ```{r}
 
-HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, family=binomial)
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, family=binomial)
 
 ```
 
@@ -202,11 +202,11 @@ summary(HappyLogRegModel)
 ```
 Apart from Income$25,001 - $50,000, HouseholdStatusMarried (no kids), HouseholdStatusMarried (w/kids), HouseholdStatusSingle (w/kids) Almost all the other variables are insignificant. We see here that the coefficients for HouseholdStatusMarried (no kids) and HouseholdStatusMarried (w/kids) are +ve which means that higher values in these two variables are indicative are indicative of happiness. The last thing we want to look at in the output is the AIC value. This is a measure of the quality of the model and is like Adjusted R-squared in that it accounts for the number of variables used compared to the number of observations. Unfortunately, it can only be compared between models on the same data set. But it provides a means for model selection. The preferred model is the one with the minimum AIC.
 
-So let's make our first prediction on the same dataset by:
+So let's make our first prediction on the Train dataset by:
 
 ```{r}
 
-predictHappiness = predict(HappyLogRegModel, type="response")
+predictHappiness = predict(HappyLogRegModel, newdata=Test, type="response")
 
 ```
 
@@ -222,7 +222,7 @@ From summary above, we saw that outcome of the logistic regression model is a pr
 
 ```{r}
 
-tapply(predictHappiness, splitTrain$Happy, mean)
+#tapply(predictHappiness, Test$Happy, mean)
 
 ```
 This will compute the average prediction for each of the true outcomes. So we see that for all of the true happy cases, we predict an average probability of about 0.58. And all of the true unhappy cases, we predict an average probability of about 0.54. So this is a good sign, because it looks like we're predicting a higher probability for the actual happy cases.
@@ -269,8 +269,9 @@ Thus we can calculate the accuracy of our model by:
 (445+1472)/nrow(splitTrain)
 (445+1472)/(445+965+351+1472)
 View(sample)
-submission = cbind(splitTrain$UserID, predictHappiness)
+submission = cbind(UserID=Test$UserID, Probability1=predictHappiness)
 View(submission)
+write.table(submission,file="submission1.csv",sep=",",row.names=F)
 ```
 
 ## Linear Regression
