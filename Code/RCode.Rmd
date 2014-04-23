@@ -268,11 +268,25 @@ Thus we can calculate the accuracy of our model by:
 
 (445+1472)/nrow(splitTrain)
 (445+1472)/(445+965+351+1472)
+
+```
+
+## First Submission on Kaggle
+
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
 View(sample)
+#we need to bind userids with our predicted probabilities
 submission = cbind(UserID=Test$UserID, Probability1=predictHappiness)
+#check how it looks
 View(submission)
+#time to write this dataframe into the csv format by:
 write.table(submission,file="submission1.csv",sep=",",row.names=F)
 ```
+
+Now go to Kaggle and submit this csv file and WOLLAH!!!
 
 ## Linear Regression
 
