@@ -1,0 +1,207 @@
+# Try 2 using Regression Trees
+================================
+
+Let's warm up by attempting to predict by converting the happy column to a factor. To begin, load the file train.csv into R, and call it train. 
+
+```{r}
+train = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv")
+test = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv")
+```
+
+Then, create a new variable isHappy in the dataframe, which takes the value "yes" if the observation corresponds to the person being happy, and "no" if the person is unhappy. You can do this by typing the following command into your R console:
+
+```{r}
+train$isHappy = as.factor(train$Happy == 1)
+```
+
+Now split the data set into a training and testing set, putting 70% of the data in the training set. The first argument to sample.split should be the dependent variable "train$isHappy". Remember that TRUE values from sample.split should go in the training set.
+
+```{r}
+split = sample.split(train$Happy, SplitRatio= 0.7)
+splitTrain = subset(train, split == TRUE)
+splitTest = subset(train, split == FALSE)
+```
+
+Before building models, let's consider a baseline method that always predicts the most frequent outcome, What is the accuracy of this baseline method on the test set?
+
+To compute the accuracy of the baseline method on the test set, we first need to see which outcome value is more frequent in the training set, by using the table function. The output of table(splitTrain$isHappy) tells us that "Happy" is more common. So our baseline method is to predict *"Happy"* for everything. How well would this do on the test set? We need to run the table command again, this time on the test set:
+
+```{r}
+table(splitTrain$Happy)
+table(splitTest$Happy)
+
+```
+
+The baseline accuracy on the test set is:
+
+```{r}
+
+781/nrow(splitTest)
+```
+
+About 56.3%.
+
+Now build a classification tree to predict whether a person is happy or not, using the splitTrain set to build your model. Remember to remove the variable "Happy" out of the model, as this is related to what we are trying to predict! 
+
+```{r}
+
+CARTHappy = rpart(isHappy ~ . - Happy, data=splitTrain, method="class")
+```
+
+We are just using the default parameters in our CART model, so we don't need to add the minbucket or cp arguments at all. We also added the argument method="class" since this is a classification problem.
+
+Let's predict on the splitTest set:
+
+```{r}
+CARTpred = predict(CARTHappy, newdata=splitTest, type="class")
+```
+
+We can use the following command to build our confusion matrix:
+```{r}
+table(splitTest$isHappy, CARTpred)
+```
+To compute the accuracy on the test set, we need to divide the sum of the true positives and true negatives by the total number of observations: 
+
+```{r}
+(595+288)/nrow(splitTest)
+
+```
+
+So it is about 63.7% which is better than our baseline model which was at 56.3%.
+
+Let's now convert the Happy variable to a factor to repeat the process:
+
+```{r}
+train$Happy = as.factor(train$Happy)
+```
+
+Now split the data set into a training and testing set, putting 70% of the data in the training set. The first argument to sample.split should be the dependent variable "train$Happy". Remove the column isHappy from the set...Remember that TRUE values from sample.split should go in the training set.
+
+```{r}
+train$isHappy = NULL
+str(train)
+split = sample.split(train$Happy, SplitRatio= 0.7)
+splitTrain = subset(train, split == TRUE)
+splitTest = subset(train, split == FALSE)
+```
+
+Before building models, let's consider a baseline method that always predicts the most frequent outcome, What is the accuracy of this baseline method on the test set?
+
+To compute the accuracy of the baseline method on the test set, we first need to see which outcome value is more frequent in the training set, by using the table function. The output of table(splitTrain$isHappy) tells us that "Happy" is more common. So our baseline method is to predict *"Happy"* for everything. How well would this do on the test set? We need to run the table command again, this time on the test set:
+
+```{r}
+table(splitTrain$Happy)
+table(splitTest$Happy)
+
+```
+
+The baseline accuracy on the test set is:
+
+```{r}
+
+781/nrow(splitTest)
+```
+
+About 56.3%.
+
+Now build a classification tree to predict whether a person is happy or not, using the splitTrain set to build your model. Remember to remove the variable "Happy" out of the model, as this is related to what we are trying to predict! 
+
+```{r}
+
+CARTHappy = rpart(Happy ~ Q98869 + Q99581 + Q99716 + Q99716 + Q101162 + Q102674 + Q102687 + Q102289 + Q103293 + Q103293 + Q106272 + Q107869 + Q110740 + Q113584 + Q115899 + Q115611 + Q115610 + Q115777 + Q118237 + Q119334 + Q120014 + Q120194 + Party + EducationLevel + HouseholdStatus + Income , data=splitTrain, method="class")
+prp(CARTHappy)
+```
+
+We are just using the default parameters in our CART model, so we don't need to add the minbucket or cp arguments at all. We also added the argument method="class" since this is a classification problem.
+
+Let's predict on the splitTest set:
+
+```{r}
+CARTpred = predict(CARTHappy, newdata=splitTest, type="class")
+```
+
+We can use the following command to build our confusion matrix:
+```{r}
+table(splitTest$Happy, CARTpred)
+```
+To compute the accuracy on the test set, we need to divide the sum of the true positives and true negatives by the total number of observations: 
+
+```{r}
+(630+256)/nrow(splitTest)
+
+```
+
+So it is about 64% which is better than our baseline model which was at 56.3%.
+
+## Random Forest Model
+
+Now estimate a random forest model on the training data -- You need randomForest package installed
+
+```{r}
+install.packages("randomForest")
+library(randomForest)
+RFHappy = randomForest(Happy ~ Q98869 + Q99581 + Q99716 + Q99716 + Q101162 + Q102674 + Q102687 + Q102289 + Q103293 + Q103293 + Q106272 + Q107869 + Q110740 + Q113584 + Q115899 + Q115611 + Q115610 + Q115777 + Q118237 + Q119334 + Q120014 + Q120194 + Party + EducationLevel + HouseholdStatus + Income, data=splitTrain, na.action=na.omit)
+```
+
+Make predictions using the predict function:
+
+```{r}
+predictRFHappy = predict(RFHappy, newdata=splitTest)
+
+```
+
+And then we can compute the test set accuracy by looking at the confusion matrix:
+
+```{r}
+
+table(splitTest$Happy, predictRFHappy)
+
+```
+
+Accuracy is:
+
+```{r}
+
+(571+334)/nrow(splitTest)
+
+```
+
+Accuracy is about 65%. Let's upload it on Kaggle:
+
+## Random Forest entry to Kaggle
+
+Let's upload our Random Forest Model on Kaggle:
+
+```{r}
+
+RFHappy = randomForest(Happy ~ Q98869 + Q99581 + Q99716 + Q99716 + Q101162 + Q102674 + Q102687 + Q102289 + Q103293 + Q103293 + Q106272 + Q107869 + Q110740 + Q113584 + Q115899 + Q115611 + Q115610 + Q115777 + Q118237 + Q119334 + Q120014 + Q120194 + Party + EducationLevel + HouseholdStatus + Income, data=train, na.action=na.omit)
+
+```
+
+predict on the test set now:
+
+
+```{r}
+predictRFHappy = predict(RFHappy, newdata=test, type="prob")
+
+```
+
+Look at the summary:
+
+```{r}
+
+summary(predictRFHappy)
+```
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+View(sample)
+#we need to bind userids with our predicted probabilities
+submission = cbind(UserID=test$UserID, Probability1=predictRFHappy)
+#check how it looks
+View(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission8.csv",sep=",",row.names=F)
+```

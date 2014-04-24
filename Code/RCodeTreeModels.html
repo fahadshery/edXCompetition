@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<!-- saved from url=(0014)about:internet -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=9" >
+
+<title>R Code for edX Competition on <em>&ldquo;Analytics Edge&rdquo;</em> DataScience Course</title>
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 8px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 { 
+   font-size:2.2em; 
+}
+
+h2 { 
+   font-size:1.8em; 
+}
+
+h3 { 
+   font-size:1.4em; 
+}
+
+h4 { 
+   font-size:1.0em; 
+}
+
+h5 { 
+   font-size:0.9em; 
+}
+
+h6 { 
+   font-size:0.8em; 
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre {	
+   margin-top: 0;
+   max-width: 95%;
+   border: 1px solid #ccc;
+   white-space: pre-wrap;
+}
+
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code.r, code.cpp {
+   background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * { 
+      background: transparent !important; 
+      color: black !important; 
+      filter:none !important; 
+      -ms-filter: none !important; 
+   }
+
+   body { 
+      font-size:12pt; 
+      max-width:100%; 
+   }
+       
+   a, a:visited { 
+      text-decoration: underline; 
+   }
+
+   hr { 
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote { 
+      padding-right: 1em; 
+      page-break-inside: avoid; 
+   }
+
+   tr, img { 
+      page-break-inside: avoid; 
+   }
+
+   img { 
+      max-width: 100% !important; 
+   }
+
+   @page :left { 
+      margin: 15mm 20mm 15mm 10mm; 
+   }
+     
+   @page :right { 
+      margin: 15mm 10mm 15mm 20mm; 
+   }
+
+   p, h2, h3 { 
+      orphans: 3; widows: 3; 
+   }
+
+   h2, h3 { 
+      page-break-after: avoid; 
+   }
+}
+
+</style>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+
+</head>
+
+<body>
+<h1>R Code for edX Competition on <em>&ldquo;Analytics Edge&rdquo;</em> DataScience Course</h1>
+
+<h1></h1>
+
+<h4>Author: Fahad Usman</h4>
+
+<h4>Start Date: 24 April 2014</h4>
+
+<h2>Data fields</h2>
+
+<ul>
+<li><strong>UserID</strong> - an anonymous id unique to a given user</li>
+<li><strong>YOB</strong> - the year of birth of the user</li>
+<li><strong>Gender</strong> - the gender of the user, either Male, Female, or not provided</li>
+<li><strong>Income</strong> - the household income of the user. Either not provided, or one of &ldquo;under $25,000&rdquo;, &ldquo;$25,001 - $50,000&rdquo;, &ldquo;$50,000 - $74,999&rdquo;, &ldquo;$75,000 - $100,000&rdquo;, &ldquo;$100,001 - $150,000&rdquo;, or &ldquo;over $150,000&rdquo;.</li>
+<li><strong>HouseholdStatus</strong> - the household status of the user. Either not provided, or one of &ldquo;Domestic Partners (no kids)&rdquo;, &ldquo;Domestic Partners (w/kids)&rdquo;, &ldquo;Married (no kids)&rdquo;, &ldquo;Married (w/kids)&rdquo;, &ldquo;Single (no kids)&rdquo;, or &ldquo;Single (w/kids)&rdquo;.</li>
+<li><strong>EducationLevel</strong> - the education level of the user. Either not provided, or one of &ldquo;Current K-12&rdquo;, &ldquo;High School Diploma&rdquo;, &ldquo;Current Undergraduate&rdquo;, &ldquo;Associate&#39;s Degree&rdquo;, &ldquo;Bachelor&#39;s Degree&rdquo;, &ldquo;Master&#39;s Degree&rdquo;, or &ldquo;Doctoral Degree&rdquo;.</li>
+<li><strong>Party</strong> - the political party of the user. Either not provided, or one of &ldquo;Democrat&rdquo;, &ldquo;Republican&rdquo;, &ldquo;Independent&rdquo;, &ldquo;Libertarian&rdquo;, or &ldquo;Other&rdquo;.</li>
+<li><strong>Happy</strong> - a binary variable, with value 1 if the user said they were happy, and with value 0 if the user said that were neutral or not happy. This is the variable you are trying to predict.</li>
+<li><strong>Q124742, Q124122, &hellip; , Q96024</strong> - 101 different questions that the users were asked on Show of Hands. If the user didn&#39;t answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.</li>
+<li><strong>votes</strong> - the total number of questions that the user responded to, out of the 101 questions included in the data set (this count does not include the happiness question).</li>
+</ul>
+
+<p><strong>Note</strong> - Dependent variable is <strong><em>Happy</em></strong> and is a binary variable. This is also classed as <em>categorical variable</em> which only takes two possible values either a person is happy (1) or not (0)&hellip;</p>
+
+<p>This part is to try if we can improve our Logistic Regression model by better predicting the happiness using the <strong>TREES</strong> methodology. </p>
+
+<p>Again we will start by reading in our dataset:</p>
+
+<pre><code class="r">Train = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv&quot;)
+Test = read.csv(&quot;C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv&quot;)
+</code></pre>
+
+<p>Check the structure and the summary again, However it should be the same as what I have seen before (Just because it&#39;s a norm :) )</p>
+
+<pre><code class="r">str(Train)
+</code></pre>
+
+<pre><code>## &#39;data.frame&#39;:    4619 obs. of  110 variables:
+##  $ UserID         : int  1 2 5 6 7 8 9 11 12 13 ...
+##  $ YOB            : int  1938 1985 1963 1997 1996 1991 1995 1983 1984 1997 ...
+##  $ Gender         : Factor w/ 3 levels &quot;&quot;,&quot;Female&quot;,&quot;Male&quot;: 3 2 3 3 3 2 3 3 2 2 ...
+##  $ Income         : Factor w/ 7 levels &quot;&quot;,&quot;$100,001 - $150,000&quot;,..: 1 3 6 5 4 7 5 2 4 6 ...
+##  $ HouseholdStatus: Factor w/ 7 levels &quot;&quot;,&quot;Domestic Partners (no kids)&quot;,..: 5 6 5 6 6 6 6 5 5 6 ...
+##  $ EducationLevel : Factor w/ 8 levels &quot;&quot;,&quot;Associate&#39;s Degree&quot;,..: 1 8 1 7 4 5 4 3 7 4 ...
+##  $ Party          : Factor w/ 6 levels &quot;&quot;,&quot;Democrat&quot;,..: 3 2 1 6 1 1 6 3 6 2 ...
+##  $ Happy          : int  1 1 0 1 1 1 1 1 0 0 ...
+##  $ Q124742        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 1 2 3 1 2 2 1 ...
+##  $ Q124122        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 3 3 3 2 3 1 3 3 1 ...
+##  $ Q123464        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 3 2 2 1 2 2 1 ...
+##  $ Q123621        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 2 2 1 1 3 2 1 ...
+##  $ Q122769        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 1 3 1 1 2 2 2 ...
+##  $ Q122770        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 3 3 1 1 2 3 3 ...
+##  $ Q122771        : Factor w/ 3 levels &quot;&quot;,&quot;Private&quot;,&quot;Public&quot;: 3 3 2 2 3 3 1 3 3 3 ...
+##  $ Q122120        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 2 2 3 1 2 2 2 ...
+##  $ Q121699        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 2 2 3 2 3 3 2 ...
+##  $ Q121700        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 2 3 3 2 2 2 2 ...
+##  $ Q120978        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 3 2 3 3 2 2 3 3 3 ...
+##  $ Q121011        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 2 2 3 3 2 3 2 ...
+##  $ Q120379        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 2 3 3 2 2 2 3 ...
+##  $ Q120650        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 3 3 2 3 3 3 3 ...
+##  $ Q120472        : Factor w/ 3 levels &quot;&quot;,&quot;Art&quot;,&quot;Science&quot;: 1 3 3 3 3 2 3 3 2 3 ...
+##  $ Q120194        : Factor w/ 3 levels &quot;&quot;,&quot;Study first&quot;,..: 3 2 3 2 2 3 3 3 3 3 ...
+##  $ Q120012        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 1 2 3 2 2 3 3 ...
+##  $ Q120014        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 3 3 1 3 3 2 3 ...
+##  $ Q119334        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 3 2 2 2 3 2 3 2 2 ...
+##  $ Q119851        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 3 2 2 3 2 2 3 ...
+##  $ Q119650        : Factor w/ 3 levels &quot;&quot;,&quot;Giving&quot;,&quot;Receiving&quot;: 1 2 2 3 2 1 2 2 2 3 ...
+##  $ Q118892        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 2 3 2 1 3 2 2 ...
+##  $ Q118117        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 3 3 3 1 2 2 2 ...
+##  $ Q118232        : Factor w/ 3 levels &quot;&quot;,&quot;Idealist&quot;,..: 2 2 3 3 3 1 1 2 2 3 ...
+##  $ Q118233        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 2 2 2 1 2 3 2 ...
+##  $ Q118237        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 3 2 2 1 2 3 2 ...
+##  $ Q117186        : Factor w/ 3 levels &quot;&quot;,&quot;Cool headed&quot;,..: 1 2 2 2 1 3 1 2 3 1 ...
+##  $ Q117193        : Factor w/ 3 levels &quot;&quot;,&quot;Odd hours&quot;,..: 1 2 3 2 3 3 1 3 3 3 ...
+##  $ Q116797        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 2 2 2 1 1 2 2 1 ...
+##  $ Q116881        : Factor w/ 3 levels &quot;&quot;,&quot;Happy&quot;,&quot;Right&quot;: 2 2 3 3 2 2 1 2 2 1 ...
+##  $ Q116953        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 3 1 3 3 3 3 1 ...
+##  $ Q116601        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 2 3 3 1 3 3 1 ...
+##  $ Q116441        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 2 2 2 1 2 2 1 ...
+##  $ Q116448        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 3 2 2 1 2 3 1 ...
+##  $ Q116197        : Factor w/ 3 levels &quot;&quot;,&quot;A.M.&quot;,&quot;P.M.&quot;: 3 2 2 2 2 3 1 2 3 1 ...
+##  $ Q115602        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 3 3 2 1 3 2 1 ...
+##  $ Q115777        : Factor w/ 3 levels &quot;&quot;,&quot;End&quot;,&quot;Start&quot;: 3 2 3 3 3 3 1 3 2 1 ...
+##  $ Q115610        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 3 3 1 1 3 2 1 ...
+##  $ Q115611        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 3 3 2 2 1 2 2 1 ...
+##  $ Q115899        : Factor w/ 3 levels &quot;&quot;,&quot;Circumstances&quot;,..: 2 3 3 2 2 3 1 2 3 1 ...
+##  $ Q115390        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 2 1 2 3 3 2 1 ...
+##  $ Q114961        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 2 3 2 3 2 2 3 1 ...
+##  $ Q114748        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 2 3 3 3 2 3 1 ...
+##  $ Q115195        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 3 3 3 3 2 3 3 3 1 ...
+##  $ Q114517        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 3 2 2 2 2 3 1 ...
+##  $ Q114386        : Factor w/ 3 levels &quot;&quot;,&quot;Mysterious&quot;,..: 1 3 3 2 2 3 3 3 3 1 ...
+##  $ Q113992        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 2 2 2 2 2 3 1 ...
+##  $ Q114152        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 2 2 3 2 2 2 2 1 ...
+##  $ Q113583        : Factor w/ 3 levels &quot;&quot;,&quot;Talk&quot;,&quot;Tunes&quot;: 2 3 2 3 3 3 3 2 3 1 ...
+##  $ Q113584        : Factor w/ 3 levels &quot;&quot;,&quot;People&quot;,&quot;Technology&quot;: 3 2 2 3 2 1 3 2 2 1 ...
+##  $ Q113181        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 3 2 3 3 2 2 1 ...
+##  $ Q112478        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 3 2 1 2 3 2 1 ...
+##  $ Q112512        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 3 3 3 3 3 3 3 1 ...
+##  $ Q112270        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 3 2 3 2 2 2 3 2 1 ...
+##  $ Q111848        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 2 3 3 1 3 2 3 ...
+##  $ Q111580        : Factor w/ 3 levels &quot;&quot;,&quot;Demanding&quot;,..: 2 3 3 3 3 3 1 3 2 3 ...
+##  $ Q111220        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 2 2 2 2 3 1 2 3 2 ...
+##  $ Q110740        : Factor w/ 3 levels &quot;&quot;,&quot;Mac&quot;,&quot;PC&quot;: 1 1 3 3 2 3 1 2 3 3 ...
+##  $ Q109367        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 2 2 1 2 3 3 1 ...
+##  $ Q108950        : Factor w/ 3 levels &quot;&quot;,&quot;Cautious&quot;,..: 2 2 3 2 2 2 1 3 2 1 ...
+##  $ Q109244        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 2 2 1 2 2 2 1 ...
+##  $ Q108855        : Factor w/ 3 levels &quot;&quot;,&quot;Umm...&quot;,&quot;Yes!&quot;: 3 3 3 2 3 3 1 2 3 1 ...
+##  $ Q108617        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 2 2 3 2 2 2 1 ...
+##  $ Q108856        : Factor w/ 3 levels &quot;&quot;,&quot;Socialize&quot;,..: 3 1 3 3 3 2 1 2 2 1 ...
+##  $ Q108754        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 2 3 1 3 3 2 1 ...
+##  $ Q108342        : Factor w/ 3 levels &quot;&quot;,&quot;In-person&quot;,..: 2 2 2 2 2 2 2 3 3 2 ...
+##  $ Q108343        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 3 3 2 2 2 2 2 2 2 ...
+##  $ Q107869        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 2 3 2 2 3 2 2 ...
+##  $ Q107491        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 3 3 3 3 3 2 3 3 ...
+##  $ Q106993        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 3 3 3 3 3 3 3 ...
+##  $ Q106997        : Factor w/ 3 levels &quot;&quot;,&quot;Grrr people&quot;,..: 3 1 3 2 3 1 3 2 3 2 ...
+##  $ Q106272        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 3 2 2 3 2 3 3 ...
+##  $ Q106388        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 2 2 2 2 2 2 2 ...
+##  $ Q106389        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 2 2 2 2 3 3 3 3 ...
+##  $ Q106042        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 2 2 3 2 3 3 3 ...
+##  $ Q105840        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 1 1 3 2 2 3 2 2 3 2 ...
+##  $ Q105655        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 3 2 3 3 3 3 3 2 ...
+##  $ Q104996        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 2 3 2 3 3 2 3 ...
+##  $ Q103293        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 3 3 2 2 2 2 3 ...
+##  $ Q102906        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 2 2 2 2 2 2 3 ...
+##  $ Q102674        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 3 2 2 2 2 2 3 2 ...
+##  $ Q102687        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 3 3 3 2 3 2 3 ...
+##  $ Q102289        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 1 2 2 3 3 3 3 2 1 ...
+##  $ Q102089        : Factor w/ 3 levels &quot;&quot;,&quot;Own&quot;,&quot;Rent&quot;: 2 1 2 2 2 3 2 2 2 1 ...
+##  $ Q101162        : Factor w/ 3 levels &quot;&quot;,&quot;Optimist&quot;,..: 2 1 2 3 2 2 2 2 2 1 ...
+##  $ Q101163        : Factor w/ 3 levels &quot;&quot;,&quot;Dad&quot;,&quot;Mom&quot;: 1 1 3 3 2 1 3 3 3 1 ...
+##  $ Q101596        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 1 3 2 3 2 2 2 2 1 ...
+##  $ Q100689        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 3 2 3 2 2 2 2 2 3 1 ...
+##  $ Q100680        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 2 2 3 3 3 2 3 1 ...
+##  $ Q100562        : Factor w/ 3 levels &quot;&quot;,&quot;No&quot;,&quot;Yes&quot;: 2 3 3 2 3 2 3 3 3 1 ...
+##  $ Q99982         : Factor w/ 3 levels &quot;&quot;,&quot;Check!&quot;,&quot;Nope&quot;: 3 1 2 3 3 2 3 2 3 1 ...
+##   [list output truncated]
+</code></pre>
+
+<pre><code class="r">summary(Train)
+</code></pre>
+
+<pre><code>##      UserID          YOB          Gender                     Income    
+##  Min.   :   1   Min.   :1900         : 537                      :1215  
+##  1st Qu.:1770   1st Qu.:1969   Female:1650   $100,001 - $150,000: 571  
+##  Median :3717   Median :1982   Male  :2432   $25,001 - $50,000  : 545  
+##  Mean   :3830   Mean   :1979                 $50,000 - $74,999  : 642  
+##  3rd Qu.:5674   3rd Qu.:1992                 $75,000 - $100,000 : 567  
+##  Max.   :9503   Max.   :2039                 over $150,000      : 536  
+##                 NA&#39;s   :684                  under $25,000      : 543  
+##                     HouseholdStatus               EducationLevel
+##                             : 800                        :1091  
+##  Domestic Partners (no kids): 118   Bachelor&#39;s Degree    : 935  
+##  Domestic Partners (w/kids) :  34   Current K-12         : 607  
+##  Married (no kids)          : 522   Current Undergraduate: 557  
+##  Married (w/kids)           :1226   Master&#39;s Degree      : 503  
+##  Single (no kids)           :1760   High School Diploma  : 487  
+##  Single (w/kids)            : 159   (Other)              : 439  
+##          Party          Happy       Q124742    Q124122    Q123464   
+##             : 728   Min.   :0.000      :2563      :1613      :1455  
+##  Democrat   : 926   1st Qu.:0.000   No :1300   No :1233   No :2966  
+##  Independent:1126   Median :1.000   Yes: 756   Yes:1773   Yes: 198  
+##  Libertarian: 409   Mean   :0.564                                   
+##  Other      : 245   3rd Qu.:1.000                                   
+##  Republican :1185   Max.   :1.000                                   
+##                                                                     
+##  Q123621    Q122769    Q122770       Q122771     Q122120    Q121699   
+##     :1524      :1333      :1211          :1201      :1230      :1080  
+##  No :1506   No :2019   No :1445   Private: 567   No :2499   No : 936  
+##  Yes:1589   Yes:1267   Yes:1963   Public :2851   Yes: 890   Yes:2603  
+##                                                                       
+##                                                                       
+##                                                                       
+##                                                                       
+##  Q121700    Q120978    Q121011    Q120379    Q120650       Q120472    
+##     :1113      :1175      :1134      :1219      :1225          :1276  
+##  No :3037   No :1530   No :1563   No :1847   No : 270   Art    :1061  
+##  Yes: 469   Yes:1914   Yes:1922   Yes:1553   Yes:3124   Science:2282  
+##                                                                       
+##                                                                       
+##                                                                       
+##                                                                       
+##         Q120194     Q120012    Q120014    Q119334    Q119851   
+##             :1337      :1188      :1322      :1207      :1098  
+##  Study first:1910   No :1813   No :1333   No :1748   No :2050  
+##  Try first  :1372   Yes:1618   Yes:1964   Yes:1664   Yes:1471  
+##                                                                
+##                                                                
+##                                                                
+##                                                                
+##       Q119650     Q118892    Q118117          Q118232     Q118233   
+##           :1190      :1019      :1092             :1580      :1289  
+##  Giving   :2611   No :1331   No :2087   Idealist  :1327   No :2392  
+##  Receiving: 818   Yes:2269   Yes:1440   Pragmatist:1712   Yes: 938  
+##                                                                     
+##                                                                     
+##                                                                     
+##                                                                     
+##  Q118237           Q117186               Q117193     Q116797   
+##     :1240              :1429                 :1410      :1338  
+##  No :1831   Cool headed:2054   Odd hours     :1299   No :2169  
+##  Yes:1548   Hot headed :1136   Standard hours:1910   Yes:1112  
+##                                                                
+##                                                                
+##                                                                
+##                                                                
+##   Q116881     Q116953    Q116601    Q116441    Q116448    Q116197    
+##       :1445      :1412      :1217      :1255      :1304       :1251  
+##  Happy:2268   No :1063   No : 578   No :2098   No :1839   A.M.:1172  
+##  Right: 906   Yes:2144   Yes:2824   Yes:1266   Yes:1476   P.M.:2196  
+##                                                                      
+##                                                                      
+##                                                                      
+##                                                                      
+##  Q115602     Q115777     Q115610    Q115611             Q115899    
+##     :1239        :1346      :1280      :1120                :1342  
+##  No : 719   End  :1346   No : 581   No :2230   Circumstances:1448  
+##  Yes:2661   Start:1927   Yes:2758   Yes:1269   Me           :1829  
+##                                                                    
+##                                                                    
+##                                                                    
+##                                                                    
+##  Q115390    Q114961    Q114748    Q115195    Q114517          Q114386    
+##     :1421      :1280      :1132      :1283      :1189             :1309  
+##  No :1304   No :1707   No :1494   No :1193   No :2283   Mysterious:1891  
+##  Yes:1894   Yes:1632   Yes:1993   Yes:2143   Yes:1147   TMI       :1419  
+##                                                                          
+##                                                                          
+##                                                                          
+##                                                                          
+##  Q113992    Q114152     Q113583           Q113584     Q113181   
+##     :1195      :1422        :1292             :1306      :1262  
+##  No :2387   No :2194   Talk :1085   People    :1666   No :1954  
+##  Yes:1037   Yes:1003   Tunes:2242   Technology:1647   Yes:1403  
+##                                                                 
+##                                                                 
+##                                                                 
+##                                                                 
+##  Q112478    Q112512    Q112270    Q111848          Q111580     Q111220   
+##     :1372      :1305      :1417      :1173             :1355      :1255  
+##  No :1278   No : 645   No :1765   No :1349   Demanding :1158   No :2468  
+##  Yes:1969   Yes:2669   Yes:1437   Yes:2097   Supportive:2106   Yes: 896  
+##                                                                          
+##                                                                          
+##                                                                          
+##                                                                          
+##  Q110740    Q109367             Q108950     Q109244      Q108855    
+##     :1246      :1311                :1271      :1399         :1587  
+##  Mac:1395   No :1285   Cautious     :2289   No :2353   Umm...:1203  
+##  PC :1978   Yes:2023   Risk-friendly:1059   Yes: 867   Yes!  :1829  
+##                                                                     
+##                                                                     
+##                                                                     
+##                                                                     
+##  Q108617         Q108856     Q108754         Q108342     Q108343   
+##     :1336            :1591      :1399            :1369      :1358  
+##  No :2884   Socialize: 880   No :2166   In-person:2240   No :1981  
+##  Yes: 399   Space    :2148   Yes:1054   Online   :1010   Yes:1280  
+##                                                                    
+##                                                                    
+##                                                                    
+##                                                                    
+##  Q107869    Q107491    Q106993           Q106997     Q106272    Q106388   
+##     :1375      :1302      :1310              :1319      :1321      :1380  
+##  No :1468   No : 436   No : 567   Grrr people:1778   No : 937   No :2359  
+##  Yes:1776   Yes:2881   Yes:2742   Yay people!:1522   Yes:2361   Yes: 880  
+##                                                                           
+##                                                                           
+##                                                                           
+##                                                                           
+##  Q106389    Q106042    Q105840    Q105655    Q104996    Q103293   
+##     :1429      :1334      :1438      :1229      :1252      :1306  
+##  No :1684   No :1723   No :1720   No :1521   No :1652   No :1775  
+##  Yes:1506   Yes:1562   Yes:1461   Yes:1869   Yes:1715   Yes:1538  
+##                                                                   
+##                                                                   
+##                                                                   
+##                                                                   
+##  Q102906    Q102674    Q102687    Q102289    Q102089          Q101162    
+##     :1432      :1441      :1315      :1365       :1329            :1381  
+##  No :2038   No :2016   No :1609   No :2259   Own :2281   Optimist :2021  
+##  Yes:1149   Yes:1162   Yes:1695   Yes: 995   Rent:1009   Pessimist:1217  
+##                                                                          
+##                                                                          
+##                                                                          
+##                                                                          
+##  Q101163    Q101596    Q100689    Q100680    Q100562       Q99982    
+##     :1485      :1368      :1198      :1341      :1349         :1418  
+##  Dad:1760   No :2117   No :1346   No :1293   No : 643   Check!:1677  
+##  Mom:1374   Yes:1134   Yes:2075   Yes:1985   Yes:2627   Nope  :1524  
+##                                                                      
+##                                                                      
+##                                                                      
+##                                                                      
+##  Q100010    Q99716     Q99581     Q99480     Q98869     Q98578    
+##     :1247      :1355      :1288      :1310      :1476      :1448  
+##  No : 653   No :2884   No :2868   No : 738   No : 704   No :1993  
+##  Yes:2719   Yes: 380   Yes: 463   Yes:2571   Yes:2439   Yes:1178  
+##                                                                   
+##                                                                   
+##                                                                   
+##                                                                   
+##         Q98059     Q98078     Q98197     Q96024         votes      
+##            :1267      :1517      :1438      :1459   Min.   : 20.0  
+##  Only-child: 330   No :1768   No :1895   No :1232   1st Qu.: 45.0  
+##  Yes       :3022   Yes:1334   Yes:1286   Yes:1928   Median : 82.0  
+##                                                     Mean   : 71.9  
+##                                                     3rd Qu.: 99.0  
+##                                                     Max.   :101.0  
+## 
+</code></pre>
+
+<p>Another noticeable thing is that we have <strong>NA&#39;s</strong> present only in the YOB column.</p>
+
+<p>Again looking at the distribution of happy people in our training dataset:</p>
+
+<pre><code class="r">
+table(Train$Happy)
+</code></pre>
+
+<pre><code>## 
+##    0    1 
+## 2015 2604
+</code></pre>
+
+<pre><code class="r">prop.table(table(Train$Happy))
+</code></pre>
+
+<pre><code>## 
+##      0      1 
+## 0.4362 0.5638
+</code></pre>
+
+<p>So this reminds us that we have 56% happy population in the training set data. Now, let&#39;s look at the proportions of the household status:</p>
+
+<pre><code class="r">
+table(Train$HouseholdStatus)
+</code></pre>
+
+<pre><code>## 
+##                             Domestic Partners (no kids) 
+##                         800                         118 
+##  Domestic Partners (w/kids)           Married (no kids) 
+##                          34                         522 
+##            Married (w/kids)            Single (no kids) 
+##                        1226                        1760 
+##             Single (w/kids) 
+##                         159
+</code></pre>
+
+<pre><code class="r">prop.table(table(Train$HouseholdStatus))
+</code></pre>
+
+<pre><code>## 
+##                             Domestic Partners (no kids) 
+##                    0.173198                    0.025547 
+##  Domestic Partners (w/kids)           Married (no kids) 
+##                    0.007361                    0.113011 
+##            Married (w/kids)            Single (no kids) 
+##                    0.265425                    0.381035 
+##             Single (w/kids) 
+##                    0.034423
+</code></pre>
+
+<p>Let&#39;s see how many of these proportions are happy:</p>
+
+<pre><code class="r">
+table(Train$HouseholdStatus, Train$Happy)
+</code></pre>
+
+<pre><code>##                              
+##                                 0   1
+##                               353 447
+##   Domestic Partners (no kids)  48  70
+##   Domestic Partners (w/kids)   18  16
+##   Married (no kids)           176 346
+##   Married (w/kids)            443 783
+##   Single (no kids)            887 873
+##   Single (w/kids)              90  69
+</code></pre>
+
+<pre><code class="r">prop.table(table(Train$HouseholdStatus, Train$Happy), 1)
+</code></pre>
+
+<pre><code>##                              
+##                                    0      1
+##                               0.4412 0.5587
+##   Domestic Partners (no kids) 0.4068 0.5932
+##   Domestic Partners (w/kids)  0.5294 0.4706
+##   Married (no kids)           0.3372 0.6628
+##   Married (w/kids)            0.3613 0.6387
+##   Single (no kids)            0.5040 0.4960
+##   Single (w/kids)             0.5660 0.4340
+</code></pre>
+
+<p>Here we see that Married (no kids)  have the highest proportions of happiness (around 66%). The same catergory Married (no kids)  have the lowest proportion of unhappy people as well.</p>
+
+<h2>Regression Tree Model</h2>
+
+<p>Let&#39;s see how regression trees do. 
+<strong>Note</strong> You need rpart library</p>
+
+<pre><code class="r">
+install.packages(&quot;rpart&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/607518069/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">install.packages(&quot;rpart.plot&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/607518069/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">install.packages(&quot;caret&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/607518069/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">install.packages(&quot;e1071&quot;)
+</code></pre>
+
+<pre><code>## Installing package into &#39;C:/Users/607518069/Documents/R/win-library/3.1&#39;
+## (as &#39;lib&#39; is unspecified)
+</code></pre>
+
+<pre><code>## Error: trying to use CRAN without setting a mirror
+</code></pre>
+
+<pre><code class="r">library(rpart)
+library(rpart.plot)
+library(caret)
+</code></pre>
+
+<pre><code>## Loading required package: lattice
+## Loading required package: ggplot2
+</code></pre>
+
+<pre><code class="r">library(e1071)
+</code></pre>
+
+<h3>First Regression Tree Model with 3 variables</h3>
+
+<p>Make the model using the splitTrain set and plot it:</p>
+
+<pre><code class="r">happinessTree = rpart(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain)
+</code></pre>
+
+<pre><code>## Error: object &#39;splitTrain&#39; not found
+</code></pre>
+
+<pre><code class="r">prp(happinessTree)
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree&#39; not found
+</code></pre>
+
+<pre><code class="r">plot(happinessTree)
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree&#39; not found
+</code></pre>
+
+<pre><code class="r">text(happinessTree)
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree&#39; not found
+</code></pre>
+
+<p>We can see it makes one split only.But the important thing is look at the leaves. In a classification tree, the leaves would be the classification we assign that these splits would apply to.</p>
+
+<p>Let&#39;s predit on the splitTest set:</p>
+
+<pre><code class="r">
+predictHappinessTree = predict(happinessTree, newdata = splitTest)
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree&#39; not found
+</code></pre>
+
+<p>Let&#39;s build the confusion matrix:</p>
+
+<pre><code class="r">
+table(predictHappinessTree, splitTest$Happy)
+</code></pre>
+
+<pre><code>## Error: object &#39;predictHappinessTree&#39; not found
+</code></pre>
+
+<pre><code class="r">(421 + 355)/nrow(splitTest)
+</code></pre>
+
+<pre><code>## Error: object &#39;splitTest&#39; not found
+</code></pre>
+
+<p>It shows that the accuracy is about 55% which is worst than the logistic regression. What we can do now is to apply 10 fold cross-validation to build the tree to see if it improves our predictions.</p>
+
+<p>PS You need to have &ldquo;e1071&rdquo; and &ldquo;caret&rdquo; libraries for this task</p>
+
+<p>So we need to tell the caret package how exactly we want to do our parameter tuning. There are actually quite a few ways of doing it. </p>
+
+<pre><code class="r">tr.control = trainControl(method = &quot;cv&quot;, number = 10)
+</code></pre>
+
+<p>Now we need to tell caret which range of CP parameters to try out. Now remember that CP varies between 0 and 1. It&#39;s likely for any given problem that we don&#39;t need to explore the whole range. So make a grid of values between the range of 0 to 0.01 to try out:</p>
+
+<pre><code class="r">
+cp.grid = expand.grid(.cp = (0:10) * 0.001)
+</code></pre>
+
+<p>Well, 1 times 0.001 is obviously 0.001. And 10 times 0.001 is obviously 0.01. 0 to 5, or 0 to 10, means the numbers 0, 1, 2, 3, 4 5, 6, 7, 8, 9, 10. So 0 to 10 times 0.001 is those numbers scaled by 0.001. So those are the values of CP that caret will try. </p>
+
+<p>Now make the tree model again:</p>
+
+<pre><code class="r">
+happinessTree1 = train(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, 
+    method = &quot;rpart&quot;, trControl = tr.control, tuneGrid = cp.grid)
+</code></pre>
+
+<pre><code>## Error: object &#39;splitTrain&#39; not found
+</code></pre>
+
+<pre><code class="r">happinessTree1
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree1&#39; not found
+</code></pre>
+
+<p>You can see it tried 11 different values of CP. And it decided that CP equals 0.007 was the best because it had the best RMSE&ndash; Root Mean Square Error along with 0.005 and 0.006 cp values. And it was 0.494 for 0.007. You see it&#39;s pretty insensitive to a particular value of CP. So it&#39;s maybe not too important. It&#39;s interesting though that the numbers are so low. So it wants us to build a very detail-rich tree. So let&#39;s see what the tree that 0.007 value of CP corresponds to is. So we can get that from going </p>
+
+<pre><code class="r">best.tree = happinessTree1$finalModel
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree1&#39; not found
+</code></pre>
+
+<pre><code class="r">best.tree
+</code></pre>
+
+<pre><code>## Error: object &#39;best.tree&#39; not found
+</code></pre>
+
+<pre><code class="r">prp(best.tree)
+</code></pre>
+
+<pre><code>## Error: object &#39;best.tree&#39; not found
+</code></pre>
+
+<p>So it is still a single node tree. Lets predict using this best tree</p>
+
+<pre><code class="r">best.tree.pred = predict(happinessTree1, newdata = splitTest)
+</code></pre>
+
+<pre><code>## Error: object &#39;happinessTree1&#39; not found
+</code></pre>
+
+<pre><code class="r">table(splitTest$Happy, best.tree.pred)
+</code></pre>
+
+<pre><code>## Error: object &#39;splitTest&#39; not found
+</code></pre>
+
+<pre><code class="r">(543 + 259)/nrow(splitTest)
+</code></pre>
+
+<pre><code>## Error: object &#39;splitTest&#39; not found
+</code></pre>
+
+<p>Let&#39;s submit to kaggle:</p>
+
+<p>We are now ready for our first Kaggle submission. For this we need to create the model on the Train set (which is provided by the staff of MIT) and predict on the Test set (again, provided by the staff team)</p>
+
+<pre><code class="r">
+happinessTree1 = rpart(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train)
+happinessTree2 = train(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, 
+    method = &quot;rpart&quot;, trControl = tr.control, tuneGrid = cp.grid)
+prp(happinessTree1)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAhFBMVEX9/v0AAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6Ojo6OmY6OpA6ZrY6kLY6kNtmAABmADpmAGZmOgBmOpBmZgBmZmZmtv+QOgCQOjqQOmaQZgCQtpCQ29uQ2/+2ZgC2Zjq2///bkDrbtmbb/7bb/9vb///9/v3/tmb/25D//7b//9v///+7nauaAAAALHRSTlP//////////////////////////////////////////////////wD//////w4QTc0AAAAJcEhZcwAACxIAAAsSAdLdfvwAAAn6SURBVHic7drretvGGQDhwLKUtk7puGkop40YIq0kkrj/+wt2AR5EUbLBE3Z3Zn6EFAzJ+3wvFyDl/PBkyH4YewE2TsJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCyhG/SauxxHJXwpzf2OI5K+NMbexxHJfzpjT2Oo8oYfnE3aZr6w8N7JvGcTc/V9PUJVVXdzJvl5/axak9efp7251bh7PbL3Z+xPdosv8yFv3JnhZ80q/ub+fLzbdPM2h9W38z74+Fw+HLnZ+wcbZ5v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" alt="plot of chunk unnamed-chunk-15"/> </p>
+
+<p>predict on the test set now:</p>
+
+<pre><code class="r">
+predictHappiness2 = predict(happinessTree2, newdata = Test)
+</code></pre>
+
+<p>Look at the summary:</p>
+
+<pre><code class="r">
+summary(predictHappiness2)
+</code></pre>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.333   0.510   0.568   0.562   0.625   0.681
+</code></pre>
+
+<p>Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:</p>
+
+<pre><code class="r"># first check the sample provided by the Staff
+sample = read.csv(&quot;sampleSubmission.csv&quot;)
+</code></pre>
+
+<pre><code>## Warning: cannot open file &#39;sampleSubmission.csv&#39;: No such file or
+## directory
+</code></pre>
+
+<pre><code>## Error: cannot open the connection
+</code></pre>
+
+<pre><code class="r">View(sample)
+# we need to bind userids with our predicted probabilities
+submission = cbind(UserID = Test$UserID, Probability1 = predictHappiness2)
+# check how it looks
+View(submission)
+# time to write this dataframe into the csv format by:
+write.table(submission, file = &quot;submission5.csv&quot;, sep = &quot;,&quot;, row.names = F)
+</code></pre>
+
+<p>Now go to Kaggle and submit this csv file and It wasn&#39;t better from the Logistic regression model!!!</p>
+
+<p>Let&#39;s try with all the variables:</p>
+
+<pre><code class="r">
+happinessTree1 = rpart(Happy ~ . - UserID, data = Train)
+happinessTree2 = train(Happy ~ . - UserID, data = Train, method = &quot;rpart&quot;, trControl = tr.control, 
+    tuneGrid = cp.grid)
+happinessTree2 = train(Happy ~ . - UserID, data = Train, method = &quot;rpart&quot;, cp = 0.004)
+</code></pre>
+
+<pre><code>## Warning: There were missing values in resampled performance measures.
+</code></pre>
+
+<pre><code class="r">prp(happinessTree1)
+</code></pre>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAAe1BMVEX9/v0AAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6OgA6OmY6OpA6ZrY6kNtmAABmADpmAGZmOgBmOpBmZmZmtv+QOgCQOjqQOmaQZgCQ29uQ2/+2ZgC2Zjq2/7a2///bkDrb/7bb/9vb///9/v3/tmb/25D//7b//9v///+iVo7GAAAAKXRSTlP//////////////////////////////////////////////wD//////5syZMYAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAw4SURBVHic7d1rWxvHHUDxKI7oxcV2XZw0pkWpI0Df/xN2r7oskkBiZudyznkRxRiz+s9PuyuIn8xPfxqyn1I/AUuT8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIcmPDThoQkPTXhowkMTHprw0ISHJjw04aEJD014aMJDEx6a8NCEhyY8NOGhCQ9NeGjCQxMemvDQhIdWE/wmdqkHDJnwwhef8BckvPDF1+vcLxaL2/Zfnr99eNg+rBeLn793D4u7zWbV/ar55/i5ez1/a37r6VP72cKXUe/eiD3eLDeN3aIV7x+ePi039x8eHm9uN6ufvze/f/CqOGzdvBZWL14Pwqducazud1qblnbT4jbgvXj3MIj3rned+C8/2k/sfjE95T/891P3Z7qLxKq/SOzgTz+BkioOfnH07tst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" alt="plot of chunk unnamed-chunk-19"/> </p>
+
+<p>predict on the test set now:</p>
+
+<pre><code class="r">best = happinessTree2$finalModel
+predictHappiness2 = predict(happinessTree2, newdata = Test)
+</code></pre>
+
+<p>Look at the summary:</p>
+
+<pre><code class="r">
+summary(predictHappiness2)
+</code></pre>
+
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.391   0.391   0.630   0.561   0.630   0.630
+</code></pre>
+
+<p>Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:</p>
+
+<pre><code class="r"># first check the sample provided by the Staff
+sample = read.csv(&quot;sampleSubmission.csv&quot;)
+</code></pre>
+
+<pre><code>## Warning: cannot open file &#39;sampleSubmission.csv&#39;: No such file or
+## directory
+</code></pre>
+
+<pre><code>## Error: cannot open the connection
+</code></pre>
+
+<pre><code class="r">View(sample)
+# we need to bind userids with our predicted probabilities
+submission = cbind(UserID = Test$UserID, Probability1 = predictHappiness2)
+</code></pre>
+
+<pre><code>## Warning: number of rows of result is not a multiple of vector length (arg
+## 2)
+</code></pre>
+
+<pre><code class="r"># check how it looks
+View(submission)
+# time to write this dataframe into the csv format by:
+write.table(submission, file = &quot;submission7.csv&quot;, sep = &quot;,&quot;, row.names = F)
+</code></pre>
+
+<p>It is now improving at all. Let&#39;s try Again from a different angle&hellip;</p>
+
+<h1>Try 2</h1>
+
+<p>Let&#39;s warm up by attempting to predict just whether a letter is B or not. To begin, load the file letters_ABPR.csv into R, and call it letters. Then, create a new variable isB in the dataframe, which takes the value &ldquo;yes&rdquo; if the observation corresponds to the letter B, and &ldquo;no&rdquo; if it does not. You can do this by typing the following command into your R console:</p>
+
+<p>letters$isB = as.factor(letters$letter == &ldquo;B&rdquo;)</p>
+
+<p>Now split the data set into a training and testing set, putting 50% of the data in the training set. Set the seed to 1000 before making the split. The first argument to sample.split should be the dependent variable &ldquo;letters$isB&rdquo;. Remember that TRUE values from sample.split should go in the training set.</p>
+
+<p>Before building models, let&#39;s consider a baseline method that always predicts the most frequent outcome, which is &ldquo;not B&rdquo;. What is the accuracy of this baseline method on the test set?</p>
+
+</body>
+
+</html>
+

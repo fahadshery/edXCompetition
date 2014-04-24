@@ -146,7 +146,7 @@ You can see it tried 11 different values of CP. And it decided that CP equals 0.
 best.tree=happinessTree1$finalModel
 best.tree
 prp(best.tree)
-{r}
+```
 
 So it is still a single node tree. Lets predict using this best tree
 
@@ -237,4 +237,5 @@ View(submission)
 write.table(submission,file="submission7.csv",sep=",",row.names=F)
 ```
 
-It is now improving at all. Let's try RandomForest
+It is now improving at all. Let's try Again from a different angle...
+
