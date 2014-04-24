@@ -1,0 +1,240 @@
+# R Code for edX Competition on *"Analytics Edge"* DataScience Course
+======================================================================
+
+#### Author: Fahad Usman
+#### Start Date: 24 April 2014
+
+## Data fields
+
+- **UserID** - an anonymous id unique to a given user
+- **YOB** - the year of birth of the user
+- **Gender** - the gender of the user, either Male, Female, or not provided
+- **Income** - the household income of the user. Either not provided, or one of "under $25,000", "$25,001 - $50,000", "$50,000 - $74,999", "$75,000 - $100,000", "$100,001 - $150,000", or "over $150,000".
+- **HouseholdStatus** - the household status of the user. Either not provided, or one of "Domestic Partners (no kids)", "Domestic Partners (w/kids)", "Married (no kids)", "Married (w/kids)", "Single (no kids)", or "Single (w/kids)".
+- **EducationLevel** - the education level of the user. Either not provided, or one of "Current K-12", "High School Diploma", "Current Undergraduate", "Associate's Degree", "Bachelor's Degree", "Master's Degree", or "Doctoral Degree".
+- **Party** - the political party of the user. Either not provided, or one of "Democrat", "Republican", "Independent", "Libertarian", or "Other".
+- **Happy** - a binary variable, with value 1 if the user said they were happy, and with value 0 if the user said that were neutral or not happy. This is the variable you are trying to predict.
+- **Q124742, Q124122, . . . , Q96024** - 101 different questions that the users were asked on Show of Hands. If the user didn't answer the question, there is a blank. For information about the question text and possible answers, see the file Questions.pdf.
+- **votes** - the total number of questions that the user responded to, out of the 101 questions included in the data set (this count does not include the happiness question).
+
+**Note** - Dependent variable is ***Happy*** and is a binary variable. This is also classed as *categorical variable* which only takes two possible values either a person is happy (1) or not (0)...
+
+This part is to try if we can improve our Logistic Regression model by better predicting the happiness using the **TREES** methodology. 
+
+Again we will start by reading in our dataset:
+
+```{r}
+Train = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/train.csv")
+Test = read.csv("C:/Users/607518069/Documents/R Projects/edXCompetition/Data/test.csv")
+```
+
+Check the structure and the summary again, However it should be the same as what I have seen before (Just because it's a norm :) )
+
+```{r}
+str(Train)
+summary(Train)
+```
+
+Another noticeable thing is that we have **NA's** present only in the YOB column.
+
+Again looking at the distribution of happy people in our training dataset:
+
+```{r}
+
+table(Train$Happy)
+prop.table(table(Train$Happy))
+```
+
+So this reminds us that we have 56% happy population in the training set data. Now, let's look at the proportions of the household status:
+
+```{r}
+
+table(Train$HouseholdStatus)
+prop.table(table(Train$HouseholdStatus))
+```
+
+Let's see how many of these proportions are happy:
+
+```{r}
+
+table(Train$HouseholdStatus, Train$Happy)
+prop.table(table(Train$HouseholdStatus, Train$Happy),1)
+
+```
+
+Here we see that Married (no kids)  have the highest proportions of happiness (around 66%). The same catergory Married (no kids)  have the lowest proportion of unhappy people as well.
+
+## Regression Tree Model
+
+Let's see how regression trees do. 
+**Note** You need rpart library
+
+```{r}
+
+install.packages("rpart")
+install.packages("rpart.plot")
+install.packages("caret")
+install.packages("e1071")
+library(rpart)
+library(rpart.plot)
+library(caret)
+library(e1071)
+```
+
+### First Regression Tree Model with 3 variables
+
+
+Make the model using the splitTrain set and plot it:
+
+```{r}
+happinessTree = rpart(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain)
+prp(happinessTree)
+plot(happinessTree)
+text(happinessTree)
+```
+
+We can see it makes one split only.But the important thing is look at the leaves. In a classification tree, the leaves would be the classification we assign that these splits would apply to.
+
+Let's predit on the splitTest set:
+
+```{r}
+
+predictHappinessTree = predict(happinessTree, newdata=splitTest)
+
+```
+
+Let's build the confusion matrix:
+
+```{r}
+
+table(predictHappinessTree, splitTest$Happy)
+(421+355)/nrow(splitTest)
+```
+
+It shows that the accuracy is about 55% which is worst than the logistic regression. What we can do now is to apply 10 fold cross-validation to build the tree to see if it improves our predictions.
+
+PS You need to have "e1071" and "caret" libraries for this task
+
+So we need to tell the caret package how exactly we want to do our parameter tuning. There are actually quite a few ways of doing it. 
+
+```{r}
+tr.control = trainControl(method="cv", number=10)
+
+```
+
+Now we need to tell caret which range of CP parameters to try out. Now remember that CP varies between 0 and 1. It's likely for any given problem that we don't need to explore the whole range. So make a grid of values between the range of 0 to 0.01 to try out:
+
+```{r}
+
+cp.grid = expand.grid(.cp = (0:10) * 0.001)
+
+```
+
+Well, 1 times 0.001 is obviously 0.001. And 10 times 0.001 is obviously 0.01. 0 to 5, or 0 to 10, means the numbers 0, 1, 2, 3, 4 5, 6, 7, 8, 9, 10. So 0 to 10 times 0.001 is those numbers scaled by 0.001. So those are the values of CP that caret will try. 
+
+Now make the tree model again:
+
+```{r}
+
+happinessTree1 = train(Happy ~ Income + HouseholdStatus + EducationLevel, data = splitTrain, method="rpart", trControl = tr.control, tuneGrid = cp.grid)
+happinessTree1
+```
+
+You can see it tried 11 different values of CP. And it decided that CP equals 0.007 was the best because it had the best RMSE-- Root Mean Square Error along with 0.005 and 0.006 cp values. And it was 0.494 for 0.007. You see it's pretty insensitive to a particular value of CP. So it's maybe not too important. It's interesting though that the numbers are so low. So it wants us to build a very detail-rich tree. So let's see what the tree that 0.007 value of CP corresponds to is. So we can get that from going 
+
+```{r}
+best.tree=happinessTree1$finalModel
+best.tree
+prp(best.tree)
+{r}
+
+So it is still a single node tree. Lets predict using this best tree
+
+```{r}
+best.tree.pred = predict(happinessTree1, newdata=splitTest)
+table(splitTest$Happy, best.tree.pred)
+(543+259)/nrow(splitTest)
+```
+
+Let's submit to kaggle:
+
+We are now ready for our first Kaggle submission. For this we need to create the model on the Train set (which is provided by the staff of MIT) and predict on the Test set (again, provided by the staff team)
+
+```{r}
+
+happinessTree1 = rpart(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train)
+happinessTree2 = train(Happy ~ Income + HouseholdStatus + EducationLevel, data = Train, method="rpart", trControl = tr.control, tuneGrid = cp.grid)
+prp(happinessTree1)
+```
+
+predict on the test set now:
+
+
+```{r}
+
+predictHappiness2 = predict(happinessTree2, newdata=Test)
+
+```
+
+Look at the summary:
+
+```{r}
+
+summary(predictHappiness2)
+```
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+View(sample)
+#we need to bind userids with our predicted probabilities
+submission = cbind(UserID=Test$UserID, Probability1=predictHappiness2)
+#check how it looks
+View(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission5.csv",sep=",",row.names=F)
+```
+
+Now go to Kaggle and submit this csv file and It wasn't better from the Logistic regression model!!!
+
+Let's try with all the variables:
+
+```{r}
+
+happinessTree1 = rpart(Happy ~ . -UserID, data = Train)
+happinessTree2 = train(Happy ~ . -UserID, data = Train, method="rpart", trControl = tr.control, tuneGrid = cp.grid)
+happinessTree2 = train(Happy ~ . -UserID, data = Train, method="rpart", cp=0.004)
+prp(happinessTree1)
+```
+
+predict on the test set now:
+
+
+```{r}
+best = happinessTree2$finalModel
+predictHappiness2 = predict(happinessTree2, newdata=Test)
+
+```
+
+Look at the summary:
+
+```{r}
+
+summary(predictHappiness2)
+```
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+View(sample)
+#we need to bind userids with our predicted probabilities
+submission = cbind(UserID=Test$UserID, Probability1=predictHappiness2)
+#check how it looks
+View(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission7.csv",sep=",",row.names=F)
+```
+
+It is now improving at all. Let's try RandomForest
