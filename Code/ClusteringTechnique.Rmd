@@ -1,0 +1,736 @@
+# Try 2 using transorming the dataset into numeric
+===================================================
+
+Let's first convert the dataset to numerics to make our algorithms life's a bit easier. To begin, load the file train.csv into R, and call it train. 
+
+```{r loading the original datasets provided by edX Team}
+train = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/train.csv", stringsAsFactors=FALSE)
+test = read.csv("C:/Users/Fahad/Documents/R Projects/edXCompetition/Data/test.csv", stringsAsFactors=FALSE)
+```
+
+Perform the basic checks on the dataset:
+
+```{r basic checks}
+str(train)
+View(train)
+is.na(train$Q101163)
+
+#example of extracting converting the factor variable to integer (logical)
+test$X = factor(c("", "A", "B", "A", "C", "YES", "NO", "NO"))
+test$X.YES = as.integer(test$X == "YES")
+
+```
+Fill in the NA in place of "" so that we could introduce imputation to fill in the missing values using the mice function of the mice library
+
+```{r replace "" with NAs}
+
+#Fill "" with NAs
+train.with.NAs = train
+test.with.NAs = test
+str(train.with.NAs)
+train.with.NAs[train.with.NAs == ""] = NA
+test.with.NAs[test.with.NAs == ""] = NA
+str(train.with.NAs)
+str(test.with.NAs)
+```
+
+Now convert back to factor type.
+
+**Note**: if we read the datafile as factors, it will show three levels where 2 levels on make sense. e.g. Male/Female in the Gender variable
+
+```{r convert to factors after NAs inclusion}
+
+# convert to factors now
+train.with.NAs[,grep(pattern="^Q1",colnames(train.with.NAs))] = lapply(train.with.NAs[,grep(pattern="^Q1",colnames(train.with.NAs))],as.factor)
+
+test.with.NAs[,grep(pattern="^Q1",colnames(test.with.NAs))] = lapply(test.with.NAs[,grep(pattern="^Q1",colnames(test.with.NAs))],as.factor)
+
+
+train.with.NAs[,grep(pattern="^Q9",colnames(train.with.NAs))] = lapply(train.with.NAs[,grep(pattern="^Q9",colnames(train.with.NAs))],as.factor)
+
+test.with.NAs[,grep(pattern="^Q9",colnames(test.with.NAs))] = lapply(test.with.NAs[,grep(pattern="^Q9",colnames(test.with.NAs))],as.factor)
+
+
+train.with.NAs$Gender = as.factor(train.with.NAs$Gender)
+test.with.NAs$Gender = as.factor(test.with.NAs$Gender)
+train.with.NAs$Income = as.factor(train.with.NAs$Income)
+test.with.NAs$Income = as.factor(test.with.NAs$Income)
+train.with.NAs$HouseholdStatus = as.factor(train.with.NAs$HouseholdStatus)
+test.with.NAs$HouseholdStatus = as.factor(test.with.NAs$HouseholdStatus)
+train.with.NAs$EducationLevel = as.factor(train.with.NAs$EducationLevel)
+test.with.NAs$EducationLevel = as.factor(test.with.NAs$EducationLevel)
+train.with.NAs$Party = as.factor(train.with.NAs$Party)
+test.with.NAs$Party = as.factor(test.with.NAs$Party)
+str(train.with.NAs)
+str(test.with.NAs)
+train.with.NAs$Age = 2014 - train.with.NAs$YOB
+test.with.NAs$Age = 2014 - test.with.NAs$YOB
+
+class(train.with.NAs$YOB)
+class(train.with.NAs$Age)
+train.with.NAs$Age = as.integer(train.with.NAs$Age)
+test.with.NAs$Age = as.integer(test.with.NAs$Age)
+
+class(train.with.NAs$Age)
+
+str(train.with.NAs)
+str(test.with.NAs)
+summary(train.with.NAs)
+summary(test.with.NAs)
+```
+From the summary we can see all the variables have vast amount of NAs in them apart from UserID variable. So we can get rid of them because if we do that we will be loosing almost half of the dataset. Therefore, we will use the imputation process to fill these NAs using built-in R libraries like mice:
+
+```{r imputation process}
+library(mice)
+
+# For our multiple imputation to be useful, we have to be able to find out the values of our missing variables without using the outcome of Happy. Therefore, we need to remove our dependent variable before imputation process. 
+
+train.with.NAs1 = train.with.NAs
+train.with.NAs1$Happy = NULL
+
+str(train.with.NAs1)
+
+#start imputation process, This will take time as it will run atleast 5 iterations. You can limit it using maxiter argument
+
+imputed = complete(mice(train.with.NAs1, method=c("", "norm","logreg","polyreg","polyreg","polyreg","polyreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","norm")))
+
+imputedtest = complete(mice(test.with.NAs, method=c("", "norm","logreg","polyreg","polyreg","polyreg","polyreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","norm")))
+
+
+#check the structure
+str(imputed)
+summary(imputed)
+imputed$Happy = train.with.NAs$Happy
+imputed$Age = 2014 - imputed$YOB
+summary(imputed)
+class(imputed$Happy)
+imputed$Happy = as.factor(imputed$Happy)
+View(imputed)
+write.csv(imputed, file="imputed.csv",sep=",",row.names=F)
+imputed_test = read.csv("imputedtest.csv")
+imputed_train = read.csv("imputed.csv")
+str(imputed_test)
+summary(imputed_test)
+str(imputed_train)
+summary(imputed_train)
+```
+We can see that there are no missing values in the imputed dataset now. 
+
+Let's split the imputed dataset into training and testing set to compute the accuracy:
+
+```{r split imputed dataset into training $ testing set}
+
+library(caTools)
+class(imputed_train$Happy)
+imputed_train$Happy = as.factor(imputed_train$Happy)
+split = sample.split(imputed_train$Happy, SplitRatio= 0.7)
+splitTrain = subset(imputed_train, split == TRUE)
+splitTest = subset(imputed_train, split == FALSE)
+```
+
+Let's build a logistic regression model to start things up:
+
+```{r logistic reg after imputation}
+#baseline model
+table(splitTrain$Happy)
+splitTrain$Age
+1823/(1410+1823)
+# our baseline model accuracy is 56.3%
+
+logRegModel = glm(Happy ~. -UserID -YOB - Q96024 -Q100562 - Q99480 -Q118117 -Q119851 -Q109244 -Q123464 - Q124122 -Q112478 -Q113583 -Q112270 -Q111580 -Q100010 -Q118892 -Q114961 -Q115611 -Q120978 -Q120472 -Q115899 -Q119650 -Q106993 -Q105840 - Q105655 -Q99716 -Q102089 -Q118232 -Q108855 -Q114517 -Q122770 -Q98059 -Q106042 -Q115602 -Q112512 -Q115777 -Q116448 -Q116797 -Q114152 -Q120379 -Q120650 -Q113181 -Q111848 -Q116601 -Q106388 -Q98197 -Q98578 -Q113992 -Q108754 -Q117186, data=splitTrain, family=binomial)
+summary(logRegModel)
+
+##predict
+
+logRegPred = predict(logRegModel, newdata=splitTest, type="response")
+
+#confusion matrix
+table(splitTest$Happy, logRegPred >0.5)
+
+(323+605)/nrow(splitTest) #our logistic regression accuracy is 67% which is beating the baseline accuracy
+
+```
+
+## Random Forest
+
+```{r random forest after imputation}
+library(randomForest)
+#ARG1 = variable to predict ~ Independent Variables, ARG3= dataset(Training set), ARG4=nodesize, also known as minbucket for CART, ARG5 = Number of trees to build 
+class(splitTrain$Happy)
+
+HappinessForest = randomForest(Happy ~ . -UserID -YOB, data=splitTrain)
+
+HappinessForest2 = randomForest(Happy ~ . -UserID -YOB - Q96024 -Q100562 - Q99480 -Q118117 -Q119851 -Q109244 -Q123464 - Q124122 -Q112478 -Q113583 -Q112270 -Q111580 -Q100010 -Q118892 -Q114961 -Q115611 -Q120978 -Q120472 -Q115899 -Q119650 -Q106993 -Q105840 - Q105655 -Q99716 -Q102089 -Q118232 -Q108855 -Q114517 -Q122770 -Q98059 -Q106042 -Q115602 -Q112512 -Q115777 -Q116448 -Q116797 -Q114152 -Q120379 -Q120650 -Q113181 -Q111848 -Q116601 -Q106388 -Q98197 -Q98578 -Q113992 -Q108754 -Q117186, data=splitTrain)
+
+print(HappinessForest)
+print(HappinessForest2)
+
+PredictForest = predict(HappinessForest, newdata=splitTest)
+PredictForest2 = predict(HappinessForest2, newdata=splitTest)
+PredictForest
+PredictForest[,2]
+table(splitTest$Happy, PredictForest)
+(295+635)/nrow(splitTest) #our accuracy is 67% so slightly better than logistic regression with all varables.
+
+table(splitTest$Happy, PredictForest2)
+(298+623)/nrow(splitTest) #66.4% so reducing vars have decreased the accuracy
+
+```
+
+## Kaggle Upload
+
+```{r kaggle upload after imputation}
+test$Age = 2014 - test$YOB
+class(imputed_train$Happy)
+HappinessForestKaggle = randomForest(Happy ~ ., data=imputed_train)
+
+print(HappinessForestKaggle)
+PredictForestKaggle = predict(HappinessForestKaggle, newdata=imputed_test, type="prob")
+
+PredictForestKaggle
+PredictForestKaggle[,2]
+
+submission = cbind(UserID=imputed_test$UserID, Probability1=PredictForestKaggle[,2])
+#check how it looks
+View(submission)
+
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission13.csv",sep=",",row.names=F)
+
+# imputation didn't improve my score
+
+
+```
+
+## K-means Clustering
+
+In this section, we will cluster the Happy persons. The first step in this process is to remove the dependent variable because needing to know the dependent variable value to assign an observation to a cluster defeats the purpose of the methodology therefore, using the following commands remove the Happy variable:
+
+```{r hierarchical clust remove dependent variable}
+
+limited.splitTrain = splitTrain
+limited.splitTest = splitTest
+
+limited.splitTrain$Happy = NULL
+limited.splitTest$Happy = NULL
+limited.splitTrain$UserID = NULL
+limited.splitTest$UserID = NULL
+
+#preprocess data
+library(caret)
+preproc = preProcess(limited.splitTrain)
+summary(limited.splitTrain)
+str(limited.splitTrain)
+```
+
+Now cluster using k-means algorithm:
+
+```{r k-means clustering}
+summary(limited.splitTrain)
+km = kmeans(limited.splitTrain, 5)
+
+```
+## Another technique is to build a Numeric dataset:
+
+Building a numeric dataset:
+
+```{r numeric dataset}
+library(ggplot2)
+library(mice)
+library(caTools)
+library(randomForest)
+
+train_numeric = train
+
+summary(train_numeric$YOB)
+
+train_numeric$Age = 2014 - train_numeric$YOB
+class(train_numeric$Age)
+
+#plot some graphs to have a feel about the dataset
+train_numeric$Happy = as.factor(train_numeric$Happy)
+imputed_train$Happy = as.factor(imputed_train$Happy)
+hist(imputed_train$Happy)
+ggplot(train_numeric, aes(x=Age)) + geom_histogram(binwidth=5, color="blue") + facet_grid( . ~ Gender)
+ggplot(imputed_train, aes(x=Happy)) + geom_histogram(binwidth=5, color="blue") + facet_grid( . ~ Gender)
+ggplot(imputed_train, aes(x=Happy)) + geom_histogram(binwidth=5, color="blue")
+
+ggplot(train_numeric, aes(x=Age, fill=Gender)) + geom_histogram(binwidth=5, color="blue")
+ggplot(train_numeric, aes(x=Gender, fill=Happy)) + geom_histogram(color="black", binwidth=5)
+summary(train_numeric$Age)
+
+#test conversion of Gender variable
+train_numeric$GenderEmpty = as.integer(train_numeric$Gender == "" )
+train_numeric$GenderMale = as.integer(train_numeric$Gender == "Male" )
+train_numeric$GenderFemale = as.integer(train_numeric$Gender == "Female" )
+train_numeric$Gender = as.integer(train_numeric$Gender)
+table(train_numeric$Gender)
+
+View(train_numeric)
+is.numeric(train_numeric$GenderEmpty)
+table(train_numeric$Gender)
+table(train_numeric$GenderEmpty)
+table(train_numeric$GenderMale)
+table(train_numeric$Gender.Female)
+
+str(train_numeric)
+View(train_numeric)
+table(train_numeric$Gender)
+str(train_numeric)
+install.packages("gdata")
+library(gdata)
+drop.levels(train_numeric$Gender)
+table(train_numeric$Gender.empty)
+train_numeric$Gender.female = as.integer(train_numeric$Gender == "Female")
+train_numeric$Gender.male = as.integer(train_numeric$Gender == "Male")
+table(train_numeric$Gender.male)
+table(train_numeric$Gender.female)
+train_numeric$Gender = train_numeric[train_numeric$Gender != ""]
+summary(train_numeric$Gender.empty)
+
+
+
+library(mice)
+
+train_imputed = train_numeric
+
+YOB = as.data.frame(train_imputed$YOB)
+YOB$Age = 2014 - train_imputed$YOB
+
+train_imputed$Happy = NULL
+train_imputed$UserID = NULL
+str(train_imputed)
+class(train_imputed$Age)
+
+str(train_imputed)
+View(train_imputed)
+table(train_imputed$Income)
+
+Imputed = mice(train_imputed, method=c("norm","logreg","polyreg","polyreg","polyreg","polyreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","logreg","norm"))
+
+table(Imputed$method)
+
+train_imputed_comp = complete(Imputed)
+str(train_imputed_comp)
+train_imputed_comp$Happy = train_numeric$Happy
+train_imputed_comp$UserID = train_numeric$UserID
+head(train_imputed_comp)
+View(train_imputed_comp)
+train_imputed_comp$YOB
+train_complete = train_imputed_comp[,c(UserID, YOB, Age, Gender, Income, HouseholdStatus, EducationLevel, Party, Happy, votes, Q122771, Q120472, Q120194, Q119650, Q118232, Q117186, Q117193, Q116881, Q116197, Q115777, Q115899, Q114386, Q113583, Q113584, Q111580, Q110740, Q108950, Q108855, Q108856, Q108342, Q106997, Q102089, Q101162, Q101163, Q99982, Q99581, Q99716, Q100010, Q100562, Q100680, Q100689, Q101596, Q102289, Q102687, Q102674, Q102906, Q103293, Q104996, Q105655, Q105840, Q106042, Q106389, Q106388, Q106272, Q106993, Q107491, Q107869, Q108343, Q108754, Q108617, Q109244, Q109367, Q111220, Q111848, Q112270, Q112512, Q112478, Q113181, Q114152, Q113992, Q114517, Q115195, Q114748, Q114961, Q115390, Q115611, Q115610, Q115602, Q116448, Q116441, Q116601, Q116953, Q116797, Q118237, Q118233, Q118117, Q118892, Q119851, Q119334, Q120014, Q120012, Q120650, Q120379, Q121011, Q120978, Q121700, Q121699, Q122120, Q122770, Q122769, Q123621, Q123464, Q124122, Q124742)]
+table(train_imputed$Income)
+table(train_imputed_comp$Income)
+summary(train_imputed$Income)
+summary(train_imputed_comp$Income)
+class(train_imputed_comp$Income)
+class(train_imputed_comp)
+class(train_imputed)
+summary(train_imp)
+
+nnet.default
+## All numeric
+class(train_numeric$UserID)
+class(train_numeric$YOB)
+table(train_numeric$Gender)
+train_numeric$Gender = as.integer(train_numeric$Gender)
+table(train_numeric$Gender)
+table(train_numeric$Income)
+train_numeric$Income = as.integer(train_numeric$Income)
+table(train_numeric$Income)
+table(train_numeric$HouseholdStatus)
+train_numeric$HouseholdStatus = as.integer(train_numeric$HouseholdStatus)
+table(train_numeric$HouseholdStatus)
+table(train_numeric$EducationLevel)
+train_numeric$EducationLevel = as.integer(train_numeric$EducationLevel)
+table(train_numeric$EducationLevel)
+table(train_numeric$Party)
+train_numeric$Party = as.integer(train_numeric$Party)
+table(train_numeric$Party)
+class(train_numeric$HouseholdStatus)
+str(train_numeric)
+table(train_numeric$Q124742)
+
+# As the remaining variables start from Q1 or Q9, we can use pattern matching to convert these in bulk using:
+
+train_numeric[,grep(pattern="^Q1",colnames(train_numeric))] = lapply(train_numeric[,grep(pattern="^Q1",colnames(train_numeric))],as.integer)
+str(train_numeric)
+
+#Same for variable names starting from Q9
+train_numeric[,grep(pattern="^Q9",colnames(train_numeric))] = lapply(train_numeric[,grep(pattern="^Q9",colnames(train_numeric))],as.integer)
+str(train_numeric)
+
+View(train_numeric)
+
+# or we have to do it manually like this:
+train_numeric$Q124742 = as.integer(train_numeric$Q124742)
+table(train_numeric$Q124742)
+table(train_numeric$Q124122)
+train_numeric$Q124122 = as.integer(train_numeric$Q124122)
+table(train_numeric$Q123464)
+train_numeric$Q123464 = as.integer(train_numeric$Q123464)
+table(train_numeric$Q123621)
+train_numeric$Q123621 = as.integer(train_numeric$Q123621)
+table(train_numeric$Q123621)
+table(train_numeric$Q122769)
+train_numeric$Q122769 = as.integer(train_numeric$Q122769)
+table(train_numeric$Q122769)
+table(train_numeric$Q122770)
+train_numeric$Q122770 = as.integer(train_numeric$Q122770) 
+table(train_numeric$Q122770)
+table(train_numeric$Q122771)
+train_numeric$Q122771 = as.integer(train_numeric$Q122771) 
+table(train_numeric$Q122771)
+table(train_numeric$Q122120)
+train_numeric$Q122120 = as.integer(train_numeric$Q122120) 
+table(train_numeric$Q121699)
+train_numeric$Q121699 = as.integer(train_numeric$Q121699) 
+table(train_numeric$Q121700)
+train_numeric$Q121700 = as.integer(train_numeric$Q121700) 
+table(train_numeric$Q120978)
+train_numeric$Q120978 = as.integer(train_numeric$Q120978) 
+table(train_numeric$Q121011)
+train_numeric$Q121011 = as.integer(train_numeric$Q121011) 
+table(train_numeric$Q120379)
+train_numeric$Q120379 = as.integer(train_numeric$Q120379) 
+table(train_numeric$Q120650)
+train_numeric$Q120650 = as.integer(train_numeric$Q120650) 
+table(train_numeric$Q120472)
+train_numeric$Q120472 = as.integer(train_numeric$Q120472) 
+table(train_numeric$Q120194)
+train_numeric$Q120194 = as.integer(train_numeric$Q120194) 
+table(train_numeric$Q120012)
+train_numeric$Q120012 = as.integer(train_numeric$Q120012) 
+table(train_numeric$Q120014)
+train_numeric$Q120014 = as.integer(train_numeric$Q120014) 
+table(train_numeric$Q119334)
+train_numeric$Q119334 = as.integer(train_numeric$Q119334) 
+table(train_numeric$Q119851)
+train_numeric$Q119851 = as.integer(train_numeric$Q119851) 
+table(train_numeric$Q119650)
+train_numeric$Q119650 = as.integer(train_numeric$Q119650) 
+table(train_numeric$Q118892)
+train_numeric$Q118892 = as.integer(train_numeric$Q118892) 
+table(train_numeric$Q118117)
+train_numeric$Q118117 = as.integer(train_numeric$Q118117) 
+table(train_numeric$Q118232)
+train_numeric$Q118232 = as.integer(train_numeric$Q118232) 
+table(train_numeric$Q118233)
+train_numeric$Q118233 = as.integer(train_numeric$Q118233) 
+table(train_numeric$Q118237)
+train_numeric$Q118237 = as.integer(train_numeric$Q118237) 
+table(train_numeric$Q117186)
+train_numeric$Q117186 = as.integer(train_numeric$Q117186) 
+table(train_numeric$Q117193)
+train_numeric$Q117193 = as.integer(train_numeric$Q117193) 
+table(train_numeric$Q116797)
+train_numeric$Q116797 = as.integer(train_numeric$Q116797) 
+table(train_numeric$Q116881)
+train_numeric$Q116881 = as.integer(train_numeric$Q116881) 
+table(train_numeric$Q116953)
+train_numeric$Q116953 = as.integer(train_numeric$Q116953) 
+table(train_numeric$Q116601)
+train_numeric$Q116953 = as.integer(train_numeric$Q116953) 
+table(train_numeric$Q116601)
+train_numeric$Q116601 = as.integer(train_numeric$Q116601) 
+table(train_numeric$Q116441)
+train_numeric$Q116441 = as.integer(train_numeric$Q116441) 
+table(train_numeric$Q116448)
+train_numeric$Q116448 = as.integer(train_numeric$Q116448) 
+table(train_numeric$Q116197)
+train_numeric$Q116197 = as.integer(train_numeric$Q116197) 
+table(train_numeric$Q115602)
+train_numeric$Q115602 = as.integer(train_numeric$Q115602) 
+table(train_numeric$Q115777)
+train_numeric$Q115777 = as.integer(train_numeric$Q115777) 
+
+str(train_numeric)
+summary(train_numeric)
+```
+
+Now split the data set into a training and testing set, putting 70% of the data in the training set. The first argument to sample.split should be the dependent variable "train$isHappy". Remember that TRUE values from sample.split should go in the training set.
+
+```{r splitting into training/testing set}
+library(caTools)
+library(rpart)
+library(rpart.plot)
+library(caret)
+
+split = sample.split(train_numeric$Happy, SplitRatio= 0.7)
+splitTrain = subset(train_numeric, split == TRUE)
+splitTest = subset(train_numeric, split == FALSE)
+```
+## Logistic Regression
+
+```{r logistic regression}
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel + Age + Gender + Party + Q117186 + Q115899 + Q117193 + Q118117 + Q119650 + Q98059 + Q98197 + Q98578 + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906 + Q103293 + Q105655 + Q105840 + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472 + Q122771 + Q116881 + Q116197 + Q115777 + Q114386 + Q113992 + Q113584 + Q113583 + Q111580 + Q108950 + Q108856 +Q108855, data = splitTrain, family=binomial)
+
+summary(HappyLogRegModel)
+
+HappyLogRegModel = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data = splitTrain, family=binomial)
+
+predictLogReg = predict(HappyLogRegModel, newdata=splitTest,  type="response")
+
+#accuracy
+summary(predictLogReg)
+table(splitTest$Happy, predictLogReg >= 0.5)
+(272+608)/(272+333+173+608)
+
+```
+
+## Kaggle submission
+
+```{r}
+train$Age = 2014 - train$YOB
+HappyLogRegModel1 = glm(Happy ~ Income + HouseholdStatus + EducationLevel + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data = train, family=binomial)
+
+```
+
+predict on the test set now:
+
+
+```{r}
+test$Age = 2014 - test$YOB
+predictLogReg1 = predict(HappyLogRegModel1, newdata=test,  type="response")
+
+```
+
+Look at the summary:
+
+```{r}
+
+summary(predictLogReg1)
+```
+Now that we have made our predictions, we are ready to submit on Kaggle. But first, we need to prepare the data file in the csv format which we can do by:
+
+```{r}
+#first check the sample provided by the Staff
+sample = read.csv("sampleSubmission.csv")
+View(sample)
+#we need to bind userids with our predicted probabilities
+submission = cbind(UserID=test$UserID, Probability1=predictLogReg1)
+#check how it looks
+View(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission11.csv",sep=",",row.names=F)
+
+##It wasn't an improvement on my existing score
+```
+
+##CART Model
+
+```{r tree model}
+
+happinessTree = rpart(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data = splitTrain, control=rpart.control(minbucket=1))
+class(splitTrain$Happy)
+happinessTree = rpart(Happy ~ ., data = splitTrain, method="class", control=rpart.control(minbucket=1))
+
+prp(happinessTree)
+install.packages("partykit")
+library(partykit)
+plot(as.party(happinessTree), type="simple")
+text(happinessTree)
+
+predictTree = predict(happinessTree, newdata=splitTest, type="class")
+predictTree[,2]
+table(splitTest$Happy, predictTree)
+(255+643)/(255+350+138+643)
+
+tree.control = trainControl(method="cv", number=10)
+cp.grid = expand.grid(.cp = (0:10) * 0.001)
+
+tr= train(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=splitTrain, method="rpart", trControl=tree.control, tuneGrid=cp.grid)
+
+best.tree = tr$finalModel
+prp(best.tree)
+table(predictTree, splitTest$Happy)
+
+
+```
+## classification model
+
+```{r classification model after imputation}
+
+
+```
+
+## Random Forest
+
+```{r random Forst after imputation}
+#RANDOM FOREST MODEL
+
+#ARG1 = variable to predict ~ Independent Variables, ARG3= dataset(Training set), ARG4=nodesize, also known as minbucket for CART, ARG5 = Number of trees to build 
+splitTrain$Happy = as.factor(splitTrain$Happy)
+HappinessForest = randomForest(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=splitTrain, na.action = na.omit)
+
+HappinessForest = randomForest(Happy ~ ., data=splitTrain, na.action = na.omit)
+
+print(HappinessForest)
+PredictForest = predict(HappinessForest, newdata=splitTest, type="prob")
+predictTree[,2]
+PredictForest[,2]
+table(splitTest$Happy, PredictForest)
+(233+550)/(233+271+117+550)
+
+```
+## Kaggle upload
+
+
+```{r}
+train$Age = 2014 - train$YOB
+train$Happy = as.factor(train$Happy)
+summary(train_numeric)
+train$YOB = NULL
+train$Age = NULL
+
+HappinessForest1 = randomForest(Happy ~ ., data=train)
+
+print(HappinessForest1)
+PredictForest1 = predict(HappinessForest1, newdata=test, type="prob")
+
+PredictForest1[,2]
+imputed = complete(mice(PredictForest1[,2]))
+
+
+submission = cbind(UserID=test$UserID, Probability1=PredictForest1[,2])
+#check how it looks
+View(submission)
+submission = na.omit(submission)
+#time to write this dataframe into the csv format by:
+write.table(submission,file="submission12.csv",sep=",",row.names=F)
+# Just moved from 1061 to 610th position
+
+```
+
+
+## Hierarchical Clustering
+
+We only want to cluster happiness on the questions/answers, income, gender i.e. variable 3-110. So let's compute the distances and save in the distance variable
+
+```{r compute distances for hierarchical clustering}
+str(train_numeric)
+distances = dist(splitTrain[2:110], method="euclidean")
+
+```
+
+Now let's cluster our happiness using the hclust function for hierarchical clustering.
+
+```{r hierarchical happiness cluster}
+
+clusterHappiness = hclust(distances, method="ward.D")
+plot(clusterHappiness)
+```
+
+Dendrogram shows 4 clusters would make more sense, but lets just pick 7 and find out which variables are in which cluster
+
+```{r cluster groups}
+str(splitTrain)
+clusterGroups = cutree(clusterHappiness, k = 7)
+rect.hclust(clusterHappiness, k=7, border="red")
+tapply(splitTrain, clusterGroups, mean)
+
+```
+
+## K-means clustering
+
+```{r k-means clustering}
+
+# First we need to remove the dependent variable because Needing to know the dependent variable value to assign an observation to a cluster defeats the purpose of the methodology 
+
+str(train_numeric)
+splitTrain_numeric_clustering = splitTrain
+splitTrain_numeric_clustering$Happy = NULL
+
+splitTest_numeric_clustering = splitTest
+splitTest_numeric_clustering$Happy = NULL
+
+
+k = 7 #number of clusters
+splitTrain_numeric_clustering$YOB = NULL
+splitTrain_numeric_clustering$Age = NULL
+splitTest_numeric_clustering$Age = NULL
+splitTest_numeric_clustering$YOB = NULL
+
+
+KMC = kmeans(splitTrain_numeric_clustering,centers= k)
+str(KMC)
+KMC$centers
+happinessClusters = KMC$cluster
+install.packages("flexclust")
+library(flexclust)
+
+km.kcca = as.kcca(KMC, splitTrain_numeric_clustering)
+
+cluster.train = predict(km.kcca)
+
+cluster.test = predict(km.kcca, newdata=splitTest_numeric_clustering)
+table(cluster.test)
+
+
+# We can obtain the necessary subsets with:
+
+train1 = subset(train_numeric, cluster.train == 1)
+
+train2 = subset(train_numeric, cluster.train == 2)
+
+train3 = subset(train_numeric, cluster.train == 3)
+
+train4 = subset(train_numeric, cluster.train == 4)
+
+train5 = subset(train_numeric, cluster.train == 5)
+
+train6 = subset(train_numeric, cluster.train == 6)
+
+train7 = subset(train_numeric, cluster.train == 7)
+
+str(splitTest)
+test1 = subset(splitTest, cluster.test == 1)
+
+test2 = subset(splitTest, cluster.test == 2)
+
+test3 = subset(splitTest, cluster.test == 3)
+
+test4 = subset(splitTest, cluster.test == 4)
+
+test5 = subset(splitTest, cluster.test == 5)
+
+test6 = subset(splitTest, cluster.test == 6)
+
+test7 = subset(splitTest, cluster.test == 7)
+
+# Build Logistic regression models lm1, lm2, and lm3 ... which predict happy using all the variables. lm1 should be trained on train1, lm2 should be trained on train2, and lm3 should be trained on train3.
+
+lm1 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train1, family=binomial)
+summary(lm1)
+
+lm2 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train2, family=binomial)
+summary(lm2)
+
+lm3 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train3, family=binomial)
+summary(lm3)
+
+lm4 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train4, family=binomial)
+summary(lm4)
+
+
+lm5 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train5, family=binomial)
+summary(lm5)
+
+lm6 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train6, family=binomial)
+summary(lm6)
+
+lm7 = glm(Happy ~ Income + HouseholdStatus + EducationLevel  + Gender + Party + Q117186  + Q117193 + Q118117 + Q119650 + Q98059 + Q98197  + Q98869 + Q99480 + Q99716 + Q100010 + Q100562 + Q100680 + Q100689 + Q101162 + Q101596 + Q102089 + Q102289 + Q102674 + Q102906   + Q106042 + Q106388 + Q106389 + Q106993 + Q106997 + Q107869 + Q108342 + Q108343 + Q108617 + Q120194 + Q120472  + Q116881 + Q116197 + Q115777 +  Q113992 + Q113584 + Q113583 + Q111580  + Q108856 +Q108855, data=train7, family=binomial)
+summary(lm7)
+
+pred.test1 = predict(lm1, newdata=test1, type="response" )
+pred.test2 = predict(lm1, newdata=test2, type="response" )
+pred.test3 = predict(lm1, newdata=test3, type="response" )
+pred.test4 = predict(lm1, newdata=test4, type="response" )
+pred.test5 = predict(lm1, newdata=test5, type="response" )
+pred.test6 = predict(lm1, newdata=test6, type="response" )
+pred.test7 = predict(lm1, newdata=test7, type="response" )
+
+all.predictions = c(pred.test1, pred.test2, pred.test3, pred.test4, pred.test5, pred.test6, pred.test7)
+all.outcomes = c(test1$Happy, test2$Happy, test3$Happy, test4$Happy, test5$Happy, test6$Happy, test7$Happy)
+
+sqrt(mean((all.predictions - all.outcomes)^2)) 
+```
